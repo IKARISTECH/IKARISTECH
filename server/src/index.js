@@ -39,6 +39,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/forms", formsRoutes);
 app.use("/api/lookups", lookupsRoutes); // ✅ AÑADIDO
 
+// ✅ NUEVO: Admin Panel (departments, levels, users, invites, reset password)
+const adminRoutes = require("./routes/admin");
+app.use("/api/admin", adminRoutes);
+
+
 // ✅ NUEVO: SIEMPRE responder JSON en errores de /api (evita HTML <title>Error</title>)
 app.use((err, req, res, next) => {
   console.error("API ERROR:", err);

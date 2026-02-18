@@ -80,7 +80,8 @@ useEffect(() => {
     try {
       me = await apiFetch("/auth/me");
     } catch (e) {
-      // 🔥 Manejo verificación
+      console.error("[Login] /auth/me error:", e);
+
       const needsVerification =
         e?.needs_verification ||
         e?.data?.needs_verification ||
@@ -94,8 +95,7 @@ useEffect(() => {
           icon: "warning",
           title: "Verifica tu correo",
           text:
-            (e?.provider || e?.data?.provider || e?.response?.data?.provider) ===
-            "google"
+            (e?.provider || e?.data?.provider || e?.response?.data?.provider) === "google"
               ? "Tu empresa aún no está verificada o falta completar configuración."
               : "Tu cuenta existe pero falta confirmar el email. Revisa bandeja y SPAM.",
           showCancelButton: true,
@@ -131,7 +131,20 @@ useEffect(() => {
         return;
       }
 
-      me = null;
+      // Si /auth/me falla por 401/500/timeout, no es onboarding: es fallo de sesión/backend
+      try {
+        await supabase.auth.signOut();
+      } catch (_) {}
+
+      await Swal.fire({
+        icon: "error",
+        title: "No se pudo iniciar sesión",
+        text: e?.message || e?.data?.error || "Falló la verificación de sesión en /auth/me",
+        confirmButtonText: "Ok",
+      });
+
+      window.location.replace("/login");
+      return;
     }
 
     const needsOnboarding =
@@ -139,7 +152,7 @@ useEffect(() => {
       me?.needs_onboarding === 1 ||
       me?.needs_onboarding === "true";
 
-    if (needsOnboarding || !me?.company?.id) {
+    if (needsOnboarding) {
       await Swal.fire({
         icon: "info",
         title: "Falta completar datos",
@@ -147,6 +160,17 @@ useEffect(() => {
         confirmButtonText: "Completar ahora",
       });
       window.location.replace("/onboarding");
+      return;
+    }
+
+    if (!me?.company?.id) {
+      await Swal.fire({
+        icon: "error",
+        title: "Error de sesión",
+        text: "No se pudo cargar empresa desde /auth/me.",
+        confirmButtonText: "Ok",
+      });
+      window.location.replace("/login");
       return;
     }
 
@@ -158,10 +182,10 @@ useEffect(() => {
       showConfirmButton: false,
     });
 
-    // ✅ Respeta destino original si venía de una ruta protegida
     const from = location?.state?.from || "/dashboard";
     window.location.replace(from);
   }
+
 
   async function handleLogin(e) {
     e.preventDefault();

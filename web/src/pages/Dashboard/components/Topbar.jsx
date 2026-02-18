@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiBell,
   FiSearch,
@@ -22,6 +23,10 @@ import Swal from "sweetalert2";
 
 import ikarisLogo from "../../../assets/ikaris-tech.png";
 import { supabase } from "../../../supabaseClient";
+import AvatarPickerModal from "../../../ui/AvatarPickerModal";
+
+/* ✅ nuevo CSS (no inflar dashboard.css) */
+import "../../../styles/topbar.avatar.css";
 
 
 
@@ -39,6 +44,8 @@ import { supabase } from "../../../supabaseClient";
   }
 
 export default function Topbar({ ctx, theme, onToggleTheme }) {
+  const navigate = useNavigate();
+
 
 
     const [q, setQ] = useState("");
@@ -76,6 +83,8 @@ const [nowTick, setNowTick] = useState(Date.now()); // para refrescar contador
 
 // ✅ Avatar viene de DB: company_users.avatar_url (por empresa/cuenta)
 const [avatarUrl, setAvatarUrl] = useState("");
+// ✅ display name reactivo (se actualiza por evento + realtime)
+const [displayName, setDisplayName] = useState("");
 
 // ✅ Placeholder tipo “sin foto” (similar a tu img 3, sin fondo real)
 const fallbackAvatarSvg = useMemo(() => {
@@ -94,7 +103,8 @@ const fallbackAvatarSvg = useMemo(() => {
 
 
     const menuRef = useRef(null);
-    const fileRef = useRef(null);
+
+const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
 useEffect(() => {
   let alive = true;
@@ -108,7 +118,7 @@ useEffect(() => {
 
       const { data, error } = await supabase
         .from("company_users")
-        .select("phone, avatar_url, phone_updated_at")
+        .select("phone, avatar_url, phone_updated_at, full_name, username")
         .eq("auth_user_id", authUserId)
         .eq("company_id", companyId)
         .maybeSingle();
@@ -119,6 +129,15 @@ useEffect(() => {
 setPhone(onlyDigits10(data?.phone || ""));
 setAvatarUrl(String(data?.avatar_url || ""));
 setPhoneUpdatedAt(data?.phone_updated_at || null);
+
+// ✅ nombre preferido: full_name -> username -> ctx fallback
+const dn =
+  String(data?.full_name || "").trim() ||
+  String(data?.username || "").trim() ||
+  String(userName || "").trim();
+
+setDisplayName(dn);
+
 
     } catch (e) {
       console.warn("[Topbar] boot sync failed:", e);
@@ -131,14 +150,68 @@ setPhoneUpdatedAt(data?.phone_updated_at || null);
   };
 }, [ctx?.me, ctx?.company?.id]);
 
+useEffect(() => {
+  const onUpd = (ev) => {
+    const name = String(ev?.detail?.full_name || "").trim();
+    if (!name) return;
+    setDisplayName(name);
+  };
+
+  window.addEventListener("ik_profile_updated", onUpd);
+  return () => window.removeEventListener("ik_profile_updated", onUpd);
+}, []);
+useEffect(() => {
+  const authUserId =
+    ctx?.me?.user?.id || ctx?.me?.user?.auth_user_id || ctx?.me?.auth_user_id;
+  const companyId = ctx?.company?.id;
+  if (!authUserId || !companyId) return;
+
+  const ch = supabase
+    .channel("ik_topbar_profile")
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "company_users",
+        filter: `company_id=eq.${companyId}`,
+      },
+      (payload) => {
+        const row = payload?.new;
+        // solo me interesa MI fila
+        if (!row || String(row.auth_user_id) !== String(authUserId)) return;
+
+        const nextName =
+          String(row.full_name || "").trim() ||
+          String(row.username || "").trim();
+
+        if (nextName) setDisplayName(nextName);
+
+        if (row.avatar_url !== undefined) {
+          setAvatarUrl(String(row.avatar_url || ""));
+        }
+        if (row.phone !== undefined) {
+          setPhone(onlyDigits10(row.phone || ""));
+        }
+        if (row.phone_updated_at !== undefined) {
+          setPhoneUpdatedAt(row.phone_updated_at || null);
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(ch);
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [ctx?.company?.id, ctx?.me?.user?.id]);
 
 
-    function quickNav(path) {
-      if (path === "/dashboard") return window.location.assign("/dashboard");
-      // placeholders controlados por ahora
-      // eslint-disable-next-line no-alert
-      alert(`Ir a: ${path} (próximo)`);
-    }
+function quickNav(path) {
+  setOpen(false); // ✅ cierra menú perfil si estaba abierto
+  navigate(path);
+}
+
 
     function onSearchSubmit(e) {
       e.preventDefault();
@@ -355,9 +428,8 @@ async function onPickAvatar(file) {
     await Swal.fire({ icon: "error", title: "Error", text: "Ocurrió un error inesperado." });
   } finally {
     // ✅ permite volver a elegir el mismo archivo
-    try {
-      if (fileRef?.current) fileRef.current.value = "";
-    } catch {}
+
+    
   }
 }
 
@@ -398,12 +470,13 @@ return (
             <button className="ik-quick__btn" onClick={() => quickNav("/forms")} title="Forms">
               <FiFileText />
             </button>
-            <button className="ik-quick__btn" onClick={() => quickNav("/users")} title="Users">
-              <FiUsers />
-            </button>
-            <button className="ik-quick__btn" onClick={() => quickNav("/settings")} title="Settings">
-              <FiSettings />
-            </button>
+<button className="ik-quick__btn" onClick={() => quickNav("/admin")} title="Admin Panel">
+  <FiUsers />
+</button>
+<button className="ik-quick__btn" onClick={() => quickNav("/admin")} title="Admin Panel">
+  <FiSettings />
+</button>
+
           </div>
         </div>
 
@@ -442,22 +515,22 @@ return (
 
   {/* 👤 Perfil (mantiene el menú desplegable) */}
   <div className="ik-profile" ref={menuRef}>
-    <button
-      className="ik-profileIcon"
-      onClick={() => setOpen((v) => !v)}
-      aria-expanded={open ? "true" : "false"}
-      title="Perfil"
-      type="button"
-    >
-      <div className="ik-avatar">
-        <img
-          className="ik-avatar__img"
-          src={avatarUrl || fallbackAvatarSvg}
-          alt="avatar"
-          onError={(e) => (e.currentTarget.src = fallbackAvatarSvg)}
-        />
-      </div>
-    </button>
+<button
+  className="ik-profileIcon"
+  onClick={() => setOpen((v) => !v)}
+  aria-expanded={open ? "true" : "false"}
+  title="Perfil"
+  type="button"
+>
+  <img
+    className="ik-profileIcon__img"
+    src={avatarUrl || fallbackAvatarSvg}
+    alt="avatar"
+    onError={(e) => (e.currentTarget.src = fallbackAvatarSvg)}
+    draggable={false}
+  />
+</button>
+
 
     {/* ✅ Renderizamos siempre para permitir animación CSS */}
 
@@ -473,25 +546,19 @@ return (
   onError={(e) => (e.currentTarget.src = fallbackAvatarSvg)}
 />
 
-                    <button
-                      className="ik-avatarBig__cam"
-                      type="button"
-                      onClick={() => fileRef.current?.click()}
-                      title="Cambiar foto"
-                    >
-                      <FiCamera />
-                    </button>
-                    <input
-                      ref={fileRef}
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={(e) => onPickAvatar(e.target.files?.[0])}
-                    />
+<button
+  className="ik-avatarBig__cam"
+  type="button"
+  onClick={() => setAvatarModalOpen(true)}
+  title="Cambiar foto"
+>
+  <FiCamera />
+</button>
+
                   </div>
 
                   <div className="ik-menu__who">
-                <div className="ik-menu__name">{representative}</div>
+                <div className="ik-menu__name">{displayName || representative}</div>
                 <div className="ik-menu__sub">{company}</div>
 
                   </div>
@@ -658,6 +725,14 @@ return (
             </div>
           </div>
         </div>
+        <AvatarPickerModal
+  open={avatarModalOpen}
+  onClose={() => setAvatarModalOpen(false)}
+  onConfirm={async (file) => {
+    await onPickAvatar(file);
+  }}
+/>
+
       </header>
     );
   }

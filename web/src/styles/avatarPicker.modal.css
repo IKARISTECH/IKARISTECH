@@ -1,0 +1,302 @@
+/* =========================
+   Avatar Picker Modal (img 2 style)
+   ========================= */
+
+.ik-apm{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+  overflow: auto;
+}
+
+/* Panel más limpio y centrado */
+.ik-apm__panel{
+  width: min(780px, 100%);
+  max-height: calc(100vh - 32px);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(10,12,20,.92);
+  box-shadow: 0 34px 160px rgba(0,0,0,.70);
+  overflow: hidden;
+}
+
+.ik-apm__head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.ik-apm__title{
+  font-weight: 900;
+  letter-spacing: .2px;
+  color: rgba(255,255,255,.92);
+}
+
+.ik-apm__x{
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.92);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Layout vertical como la img 2 */
+.ik-apm__body{
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  justify-items: center;
+}
+
+/* Preview grande */
+.ik-apm__previewBig{
+  width: min(520px, 100%);
+}
+
+/* Área cuadrada dominante */
+.ik-apm__cropWrap{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;          /* ✅ cuadrado */
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+}
+
+.ik-apm__cropEmpty{
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: rgba(255,255,255,.60);
+  font-weight: 900;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+
+/* Controles compactos tipo “ZOOM” */
+.ik-apm__controls{
+  width: min(520px, 100%);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  padding: 12px;
+}
+
+.ik-apm__zoomRow{
+  display: grid;
+  gap: 10px;
+  color: rgba(255,255,255,.85);
+  font-weight: 900;
+}
+
+.ik-apm__zoomLabel{
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.ik-apm__zoomRow input[type="range"]{
+  width: 100%;
+}
+
+/* Botones alineados a la derecha */
+.ik-apm__actions{
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ik-apm__ghost,
+.ik-apm__primary{
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.ik-apm__ghost{
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.92);
+}
+
+.ik-apm__primary{
+  background: rgba(121,86,255,.90);
+  border-color: rgba(121,86,255,.60);
+  color: rgba(255,255,255,.98);
+}
+
+.ik-apm__primary:disabled,
+.ik-apm__ghost:disabled{
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* Dropzone pequeña tipo banner */
+.ik-apm__drop{
+  width: min(520px, 100%);
+  border-radius: 16px;
+  border: 1px dashed rgba(255,255,255,.18);
+  background: rgba(255,255,255,.04);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+
+.ik-apm__drop--compact{
+  padding: 10px 12px; /* ✅ aún más compacta */
+}
+
+.ik-apm__dropTop{
+  display: grid;
+  gap: 6px;
+}
+
+.ik-apm__drop.dragover{
+  border-color: rgba(121,86,255,.55);
+  background: rgba(121,86,255,.12);
+  transform: translateY(-1px);
+}
+
+.ik-apm__dropTitle{
+  font-weight: 950;
+  color: rgba(255,255,255,.92);
+}
+
+.ik-apm__dropSub{
+  color: rgba(255,255,255,.55);
+  font-weight: 800;
+}
+
+.ik-apm__btn{
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.07);
+  color: rgba(255,255,255,.92);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ik-apm__btn:hover{
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.16);
+}
+
+.ik-apm__hint{
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255,255,255,.55);
+}
+/* =========================
+   Zoom SIN contenedor (bare)
+   ========================= */
+.ik-apm__zoomBare{
+  width: min(520px, 100%);
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  padding: 2px 0;              /* ✅ sin card */
+}
+
+.ik-apm__zoomBare .ik-apm__zoomLabel{
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.85);
+}
+
+.ik-apm__zoomBare input[type="range"]{
+  width: 100%;
+}
+
+/* =========================
+   Preview = Dropzone
+   ========================= */
+.ik-apm__cropWrap.isDrop{
+  cursor: pointer;
+}
+
+.ik-apm__dropHint{
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 18px;
+  color: rgba(255,255,255,.65);
+  font-weight: 900;
+  user-select: none;
+}
+
+.ik-apm__dropHintTitle{
+  font-size: 18px;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  opacity: .85;
+}
+
+.ik-apm__dropHintSub{
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: .70;
+  text-transform: none;
+}
+
+/* Dragover sobre el cuadro grande */
+.ik-apm__cropWrap.dragover{
+  border-color: rgba(121,86,255,.55);
+  background: rgba(121,86,255,.10);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Botón X (solo cuando hay img)
+   ========================= */
+.ik-apm__clear{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.35);
+  color: rgba(255,255,255,.92);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ik-apm__clear:hover{
+  background: rgba(0,0,0,.48);
+  border-color: rgba(255,255,255,.18);
+}
+
+/* =========================
+   Acciones abajo (misma fila)
+   ========================= */
+.ik-apm__actions{
+  width: min(520px, 100%);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0;                  /* ✅ sin contenedor */
+}

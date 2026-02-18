@@ -294,11 +294,12 @@ export function WidgetCalendar({ ctx }) {
           <SkeletonLines />
         ) : (
           <>
-            <div className="ik-cal__week">
-              {["D", "L", "M", "M", "J", "V", "S"].map((d) => (
-                <div key={d} className="ik-cal__w">{d}</div>
-              ))}
-            </div>
+<div className="ik-cal__week">
+  {["D", "L", "M", "M", "J", "V", "S"].map((d, i) => (
+    <div key={`${d}-${i}`} className="ik-cal__w">{d}</div>
+  ))}
+</div>
+
 
             <div className="ik-cal__grid">
               {days.map((n) => (

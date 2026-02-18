@@ -15,6 +15,8 @@ import {
   FiSliders,
 } from "react-icons/fi";
 
+import ikarLogo from "../../../assets/IKAR.png";
+
 
 
 
@@ -55,8 +57,24 @@ export default function Sidebar({ ctx }) {
   const canSettings = isAdmin;
   const canFinance = role === "ARCHON";
 
+  // ✅ Permisos por puesto/nivel (module_keys)
+  // Soporta varias formas de ctx para que NO se rompa si cambia tu backend:
+  const rawAllowed =
+    ctx?.me?.level?.module_keys ||
+    ctx?.me?.module_keys ||
+    ctx?.user?.level?.module_keys ||
+    ctx?.user?.module_keys ||
+    ctx?.level?.module_keys ||
+    ctx?.module_keys ||
+    [];
+
+  const allowedKeys = useMemo(() => {
+    const arr = Array.isArray(rawAllowed) ? rawAllowed : [];
+    return new Set(arr.map(String));
+  }, [rawAllowed]);
+
   const modules = useMemo(() => {
-    return [
+    const all = [
       {
         title: "Core",
         items: [
@@ -83,13 +101,28 @@ export default function Sidebar({ ctx }) {
       {
         title: "Administración",
         items: [
-          { key: "users", label: "Users", icon: <FiUsers />, path: "/users", soon: true, disabled: !canUsers, badge: !canUsers ? "ADMIN" : null },
-          { key: "security", label: "Seguridad", icon: <FiShield />, path: "/security", soon: true, disabled: !canSettings, badge: !canSettings ? "ADMIN" : null },
-          { key: "settings", label: "Settings", icon: <FiSettings />, path: "/settings", soon: true, disabled: !canSettings, badge: !canSettings ? "ADMIN" : null },
+          { key: "admin_users", label: "Admin Panel", icon: <FiUsers />, path: "/admin", soon: false, disabled: !canUsers, badge: !canUsers ? "ADMIN" : null },
+          { key: "admin_security", label: "Seguridad", icon: <FiShield />, path: "/admin", soon: false, disabled: !canSettings, badge: !canSettings ? "ADMIN" : null },
+          { key: "admin_settings", label: "Settings", icon: <FiSettings />, path: "/admin", soon: false, disabled: !canSettings, badge: !canSettings ? "ADMIN" : null },
         ],
       },
     ];
-  }, [canFinance, canSettings, canUsers]);
+
+    // ✅ Si NO hay module_keys guardados, no filtramos (para no bloquear por accidente)
+    if (allowedKeys.size === 0) return all;
+
+    // ✅ Filtra por module_keys
+    const filtered = all
+      .map((sec) => ({
+        ...sec,
+        items: (sec.items || []).filter((it) => allowedKeys.has(String(it.key))),
+      }))
+      .filter((sec) => (sec.items || []).length > 0);
+
+    return filtered;
+  }, [allowedKeys, canFinance, canSettings, canUsers]);
+
+
 
   const location = useLocation();
   const activePath = location.pathname;
@@ -106,39 +139,42 @@ export default function Sidebar({ ctx }) {
     window.location.assign(path);
   }
 
-  return (
-    <aside className="ik-sidebar ik-sidebar--hover">
-      <div className="ik-sidebar__top">
-        <div className="ik-sidebar__title" >Módulos</div>
+return (
+  <aside className="ik-sidebar ik-sidebar--hover">
+    <div className="ik-sidebar__top ik-sidebar__top--center">
+      <div className="ik-sidebar__brand" title="IKARIS">
+        <img className="ik-sidebar__brandImg" src={ikarLogo} alt="IKARIS" />
       </div>
+    </div>
 
-      <div className="ik-sidebar__items">
-        {modules.map((sec) => (
-          <Section key={sec.title} title={sec.title}>
-            {sec.items.map((m) => (
-              <Item
-                key={m.key}
-                icon={m.icon}
-                label={m.label}
-                active={activePath === m.path || activePath.startsWith(m.path + "/")}
-                disabled={!!m.disabled}
-                badge={m.badge || (m.soon ? "SOON" : null)}
-                onClick={() => go(m.path, m.soon)}
-              />
-            ))}
-            <div className="ik-sep" />
-          </Section>
-        ))}
-      </div>
+    <div className="ik-sidebar__items">
+      {modules.map((sec) => (
+        <Section key={sec.title} title={sec.title}>
+          {sec.items.map((m) => (
+            <Item
+              key={m.key}
+              icon={m.icon}
+              label={m.label}
+              active={activePath === m.path || activePath.startsWith(m.path + "/")}
+              disabled={!!m.disabled}
+              badge={m.badge || (m.soon ? "SOON" : null)}
+              onClick={() => go(m.path, m.soon)}
+            />
+          ))}
+          <div className="ik-sep" />
+        </Section>
+      ))}
+    </div>
 
-      <div className="ik-sidebar__bottom">
-        <div className="ik-sidebar__foot">
-          <div className="ik-foot__k">IKARIS</div>
-          <div className="ik-foot__v">
-            Plan: <b>{String(plan).toUpperCase()}</b> · Rol: <b>{role}</b>
-          </div>
+    <div className="ik-sidebar__bottom">
+      <div className="ik-sidebar__foot">
+        <div className="ik-foot__k">IKARIS</div>
+        <div className="ik-foot__v">
+          Plan: <b>{String(plan).toUpperCase()}</b> · Rol: <b>{role}</b>
         </div>
       </div>
-    </aside>
-  );
+    </div>
+  </aside>
+);
+
 }

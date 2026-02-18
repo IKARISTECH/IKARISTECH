@@ -15,20 +15,23 @@ function withTimeout(promise, ms, label) {
 
 export default function AuthCallback() {
   const navigate = useNavigate();
-  const ranRef = useRef(false);
   const [status, setStatus] = useState("Procesando callback...");
+  const runIdRef = useRef(0);
 
-  useEffect(() => {
-    if (ranRef.current) return;
-    ranRef.current = true;
+  
+useEffect(() => {
+  const myRunId = ++runIdRef.current; // ✅ identifica este run (StrictMode)
+  let cancelled = false;
 
-    let cancelled = false;
+  const isStale = () => cancelled || myRunId !== runIdRef.current;
 
-    async function run() {
+  async function run() {
+
       // ✅ fallback duro: si algo se cuelga, manda a login
-      const killer = setTimeout(() => {
-        if (!cancelled) navigate("/login", { replace: true });
-      }, 25000);
+const killer = setTimeout(() => {
+  if (!isStale()) window.location.replace("/login");
+}, 25000);
+
 
       try {
         setStatus("Leyendo callback...");
@@ -83,7 +86,9 @@ const me = await withTimeout(
   "/auth/me"
 );
 
-if (cancelled) return;
+if (isStale()) return;
+
+
 
 // ✅ flujo guardado por Login/Register: "login" | "signup"
 const flow = localStorage.getItem("IKARIS_OAUTH_FLOW");
@@ -176,18 +181,21 @@ const dest = needsOnboarding ? "/onboarding" : "/dashboard";
         navigate(dest, { replace: true });
 
         // ✅ respaldo extra (por si el router no navega por alguna razón)
-        setTimeout(() => {
-          if (!cancelled && window.location.pathname === "/auth/callback") {
-            window.location.href = dest;
-          }
-        }, 800);
+setTimeout(() => {
+  if (!isStale() && window.location.pathname === "/auth/callback") {
+    window.location.replace(dest);
+  }
+}, 800);
+
+
 
         return;
       } catch (err) {
         console.error("AuthCallback error:", err);
         sessionStorage.removeItem("IKARIS_CALLBACK_DONE");
         localStorage.removeItem("IKARIS_OAUTH_FLOW");
-        if (!cancelled) navigate("/login", { replace: true });
+       if (!isStale()) window.location.replace("/login");
+
         return;
       } finally {
         clearTimeout(killer);

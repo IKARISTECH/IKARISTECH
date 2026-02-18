@@ -802,17 +802,8 @@
 }
 
 
-.ik-sidebar__top{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 12px;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-}
-.ik-sidebar__title{
-  font-weight: 800;
-  color: rgba(255,255,255,.82);
-}
+
+
 
 .ik-sidebar__items{
   padding: 10px;
@@ -1680,6 +1671,57 @@
   font-size: 12px;
   color: var(--muted);
   font-weight: 800;
+}
+
+
+/* TOP del sidebar: siempre centrado */
+.ik-sidebar__top{
+  display: flex;
+  align-items: center;
+  justify-content: center; /* ✅ centrado SIEMPRE */
+  padding: 16px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+/* helper class opcional (por si quieres ajustar luego) */
+.ik-sidebar__top--center{
+  justify-content: center;
+}
+
+/* Ya no existe el título, por si queda algún estilo suelto */
+.ik-sidebar__title{
+  display: none !important;
+}
+
+/* ✅ LOGO SIN CONTENEDOR: sin cuadro, sin fondo, sin borde */
+.ik-sidebar__brand{
+  width: auto;
+  height: auto;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* Ajuste del tamaño del logo (colapsado y expandido igual) */
+.ik-sidebar__brandImg{
+  width: 36px;     /* súbelo/bájalo si quieres más presencia */
+  height: 36px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 14px 34px rgba(0,0,0,.45));
+  opacity: .98;
+}
+
+/* ✅ Ya no necesitas reglas especiales para colapsado */
+.ik-sidebar.ik-sidebar--hover:not(:hover) .ik-sidebar__top,
+.ik-sidebar.ik-sidebar--hover:not(:hover) .ik-sidebar__brand{
+  justify-content: center;
+  margin: 0;
 }
 
 

@@ -1,5 +1,6 @@
 // web/src/App.js
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useMemo, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -137,6 +138,177 @@ function PublicOnly({ authed, children }) {
   if (authed) return null;
   return children;
 }
+function AppRoutes({ boot }) {
+  const navigate = useNavigate();
+
+  // ✅ ctx global mínimo (para DashboardLayout en Admin/AcceptInvite)
+  const [me, setMe] = useState(null);
+  const [meLoading, setMeLoading] = useState(false);
+
+  async function loadMe() {
+    setMeLoading(true);
+    try {
+      const data = await apiFetch("/auth/me");
+      setMe(data);
+    } catch (e) {
+      // Si falla, no rompas todo; solo deja me en null
+      console.warn("[AppRoutes] /auth/me failed:", e);
+      setMe(null);
+    } finally {
+      setMeLoading(false);
+    }
+  }
+
+  // ✅ cuando ya está authed, cargamos /auth/me 1 vez
+  useEffect(() => {
+    if (!boot?.authed) {
+      setMe(null);
+      return;
+    }
+    loadMe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boot?.authed]);
+
+  const ctx = useMemo(() => {
+    const role =
+      me?.membership?.role ||
+      me?.companyUser?.role ||
+      me?.user?.role ||
+      me?.role ||
+      "POLITES";
+
+    return {
+      me,
+      user: me?.user || null,
+      membership: me?.membership || null,
+      role,
+      company: me?.company || null,
+      loading: meLoading,
+      refreshMe: loadMe,
+      async logout() {
+        try {
+          await supabase.auth.signOut();
+        } catch (_) {}
+        window.location.replace("/login");
+      },
+      go(path) {
+        navigate(path);
+      },
+    };
+  }, [me, meLoading, navigate]);
+
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+
+      <Route
+        path="/login"
+        element={
+          <PublicOnly authed={boot.authed}>
+            <Login />
+          </PublicOnly>
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          <PublicOnly authed={boot.authed}>
+            <Register />
+          </PublicOnly>
+        }
+      />
+
+      <Route path="/auth/callback" element={<AuthCallback />} />
+
+      <Route
+        path="/onboarding"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            <CompleteOnboarding />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ✅ ADMIN */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            {React.createElement(require("./pages/Admin/AdminPanel").default, { ctx })}
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ✅ Invitaciones */}
+      <Route
+        path="/accept-invite"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            {React.createElement(require("./pages/Admin/AcceptInvite").default, { ctx })}
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ✅ FORMS */}
+      <Route
+        path="/forms"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            <FormsList />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/forms/new"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            <FormBuilder />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/forms/:id/edit"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            <FormBuilder />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/forms/:id/fill"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            <FormFill />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/forms/:id/responses"
+        element={
+          <ProtectedRoute authed={boot.authed}>
+            <FormResponses />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  );
+}
 
 export default function App() {
   return (
@@ -146,99 +318,10 @@ export default function App() {
           {/* ✅ base siempre presente para que el blur se vea premium en light/dark */}
           <div className="ik-appBase" aria-hidden="true" />
 
-          <AuthBootstrap>
-            {(boot) => (
-              <Routes>
-                <Route path="/" element={<Navigate to="/login" replace />} />
+<AuthBootstrap>
+  {(boot) => <AppRoutes boot={boot} />}
+</AuthBootstrap>
 
-                <Route
-                  path="/login"
-                  element={
-                    <PublicOnly authed={boot.authed}>
-                      <Login />
-                    </PublicOnly>
-                  }
-                />
-
-                <Route
-                  path="/register"
-                  element={
-                    <PublicOnly authed={boot.authed}>
-                      <Register />
-                    </PublicOnly>
-                  }
-                />
-
-                <Route path="/auth/callback" element={<AuthCallback />} />
-
-                <Route
-                  path="/onboarding"
-                  element={
-                    <ProtectedRoute authed={boot.authed}>
-                      <CompleteOnboarding />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute authed={boot.authed}>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* ✅ FORMS */}
-                <Route
-                  path="/forms"
-                  element={
-                    <ProtectedRoute authed={boot.authed}>
-                      <FormsList />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/forms/new"
-                  element={
-                    <ProtectedRoute authed={boot.authed}>
-                      <FormBuilder />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/forms/:id/edit"
-                  element={
-                    <ProtectedRoute authed={boot.authed}>
-                      <FormBuilder />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/forms/:id/fill"
-                  element={
-                    <ProtectedRoute authed={boot.authed}>
-                      <FormFill />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/forms/:id/responses"
-                  element={
-                    <ProtectedRoute authed={boot.authed}>
-                      <FormResponses />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route path="*" element={<Navigate to="/login" replace />} />
-              </Routes>
-            )}
-          </AuthBootstrap>
         </Router>
       </LoadingProvider>
     </ErrorBoundary>

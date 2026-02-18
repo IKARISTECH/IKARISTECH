@@ -93,16 +93,21 @@ const { data: company, error: compErr } = await supabaseAdmin
 
     if (compErr) return res.status(400).json({ error: compErr.message });
 
-    // 3) Crear membership ARCHON (Director)
-    const { error: memErr } = await supabaseAdmin.from("company_users").insert({
-      company_id: company.id,
-      auth_user_id,
-      username: userEmail.split("@")[0] || "archon",
-      role: "ARCHON",
-      department: "DIRECCION",
-      active: true,
-      can_create_forms: true,
-    });
+const { error: memErr } = await supabaseAdmin.from("company_users").insert({
+  company_id: company.id,
+  auth_user_id,
+  username: userEmail.split("@")[0] || "archon",
+  role: "ARCHON",
+  department: "DIRECCION",
+  active: true,
+  can_create_forms: true,
+
+  // ✅ ARCHON no es temporal
+  temp_email: null,
+  must_change_password: false,
+  password_changed_at: null,
+});
+
 
     if (memErr) return res.status(500).json({ error: memErr.message });
 
@@ -244,6 +249,71 @@ const isGoogleOAuth = provider === "google";
     return res.status(500).json({ error: String(e) });
   }
 });
+// ✅ Heartbeat: actualiza last_seen_at (persistente) vía backend (service role)
+router.post("/ping", requireAuthUserOnly, async (req, res) => {
+  try {
+    const authUser = req.authUser;
+
+    const { data: memberships, error: memErr } = await supabaseAdmin
+      .from("company_users")
+      .select("id, company_id")
+      .eq("auth_user_id", authUser.id)
+      .eq("active", true)
+      .limit(1);
+
+    if (memErr) return res.status(500).json({ error: memErr.message });
+
+    const me = memberships?.[0];
+    if (!me?.id) return res.status(403).json({ error: "No membership" });
+
+    const now = new Date().toISOString();
+
+    const { error: upErr } = await supabaseAdmin
+      .from("company_users")
+      .update({ last_seen_at: now })
+      .eq("id", me.id);
+
+    if (upErr) return res.status(500).json({ error: upErr.message });
+
+    return res.status(200).json({ ok: true, at: now });
+  } catch (e) {
+    return res.status(500).json({ error: String(e?.message || e) });
+  }
+});
+// ✅ Marcar que ya cambió contraseña (primer login)
+router.post("/mark-password-changed", requireAuthUserOnly, async (req, res) => {
+  try {
+    const authUser = req.authUser;
+
+    const { data: memberships, error: memErr } = await supabaseAdmin
+      .from("company_users")
+      .select("id, must_change_password")
+      .eq("auth_user_id", authUser.id)
+      .eq("active", true)
+      .limit(1);
+
+    if (memErr) return res.status(500).json({ error: memErr.message });
+
+    const me = memberships?.[0];
+    if (!me?.id) return res.status(403).json({ error: "No membership" });
+
+    const now = new Date().toISOString();
+
+    const { error: upErr } = await supabaseAdmin
+      .from("company_users")
+      .update({
+        must_change_password: false,
+        password_changed_at: now,
+      })
+      .eq("id", me.id);
+
+    if (upErr) return res.status(500).json({ error: upErr.message });
+
+    return res.status(200).json({ ok: true, at: now });
+  } catch (e) {
+    return res.status(500).json({ error: String(e?.message || e) });
+  }
+});
 
 router.get("/me", requireAuthUserOnly, async (req, res) => {
   // ✅ timeout duro: si algo se cuelga, responde 504 y el frontend no se queda esperando
@@ -340,17 +410,18 @@ if (!companyUser) {
 
 // ✅ Verificación:
 // - Email/password: usa email_confirmed_at
-// - Google OAuth: NO pedimos verificación de correo
 const emailConfirmedAt = authUser.email_confirmed_at;
 
+// ✅ Solo el ARCHON (dueño) exige verificación fuerte.
+// Empleados creados por ARCHON (create-temp / invites) deben poder entrar sin bloquearse
+const isArchon = String(companyUser?.role || "").toUpperCase() === "ARCHON";
 
-
-// ✅ Reglas NUEVAS (como tú pediste):
-// - Google OAuth: NO pide confirmación por correo, NO pide verified_at
-// - Email/password: requiere company.verified_at y email_confirmed_at
 const isVerified = isGoogleOAuth
   ? true
-  : (!!company?.verified_at && !!emailConfirmedAt);
+  : (isArchon
+      ? (!!company?.verified_at && !!emailConfirmedAt) // ARCHON: empresa + email confirmado
+      : true // ✅ Empleados: entra directo
+    );
 
 if (!isVerified) {
   return res.status(403).json({
@@ -358,8 +429,10 @@ if (!isVerified) {
     needs_verification: true,
     provider,
     email: authUser.email,
+    reason: isArchon ? "COMPANY_OR_EMAIL_NOT_VERIFIED" : "BLOCKED",
   });
 }
+
 
 
 // ✅ Enviar bienvenida 1 sola vez (para verificados y Google)
@@ -394,6 +467,21 @@ try {
 
 
 
+    // ✅ last_seen_at GLOBAL (no bloquea respuesta)
+    try {
+      const memId = companyUser?.id;
+      if (memId) {
+        setImmediate(async () => {
+          try {
+            await supabaseAdmin
+              .from("company_users")
+              .update({ last_seen_at: new Date().toISOString() })
+              .eq("id", memId);
+          } catch (_) {}
+        });
+      }
+    } catch (_) {}
+
     return res.status(200).json({
       ok: true,
       user: {
@@ -404,6 +492,7 @@ try {
       membership: companyUser,
       company,
     });
+
   } catch (e) {
     return res.status(500).json({ error: String(e) });
   } finally {

@@ -1,0 +1,21 @@
+/* =========================
+   Topbar Avatar (FB-like)
+   ========================= */
+
+/* El botón ya es el contenedor del avatar */
+.ik-profileIcon{
+  position: relative;
+  overflow: hidden;       /* ✅ recorta la imagen al radio */
+  padding: 0;             /* ✅ sin padding */
+}
+
+/* La imagen ocupa todo el botón */
+.ik-profileIcon__img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;      /* ✅ full cover */
+  border-radius: inherit; /* ✅ mismo radio del botón */
+  user-select: none;
+  -webkit-user-drag: none;
+}

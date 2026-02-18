@@ -1,0 +1,45 @@
+/* =========================
+   Onboarding Modal (IKARIS)
+   ========================= */
+.ik-onbOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(0,0,0,.60);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+}
+
+.ik-onbModal{
+  width: min(760px, 96vw);
+  background: rgba(18,18,22,.94);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+  box-shadow: 0 40px 160px rgba(0,0,0,.60);
+  overflow: hidden;
+  color: rgba(255,255,255,.92);
+}
+
+.ik-onbTop{
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.ik-onbTitle{
+  font-weight: 900;
+  letter-spacing: .2px;
+  font-size: 16px;
+}
+
+.ik-onbSub{
+  margin-top: 4px;
+  opacity: .72;
+  font-size: 12px;
+}
+
+.ik-onbForm{
+  padding: 16px 18px 18px;
+}

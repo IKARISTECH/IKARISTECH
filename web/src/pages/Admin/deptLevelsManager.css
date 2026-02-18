@@ -1,0 +1,985 @@
+.dlm-wrap{
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 14px;
+  width: 100%;
+  min-height: 520px;
+}
+
+.dlm-left, .dlm-right{
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.06);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.dlm-title{
+  padding: 14px 14px 10px;
+  font-weight: 950;
+  letter-spacing: .2px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  opacity: .92;
+}
+
+.dlm-deptList{
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dlm-deptItem{
+  height: 48px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  text-align: left;
+}
+
+.dlm-deptItem:hover{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.10);
+}
+
+.dlm-deptItem.is-on{
+  background: rgba(124,58,237,0.14);
+  border-color: rgba(124,58,237,0.28);
+}
+
+.dlm-dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.20);
+}
+
+.dlm-deptTxt{
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dlm-right{
+  padding: 14px;
+}
+
+.dlm-top{
+  margin-bottom: 12px;
+}
+
+.dlm-topRow{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dlm-actions{
+  display: flex;
+  gap: 8px;
+}
+
+.dlm-iconBtn{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.10);
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+.dlm-iconBtn:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.dlm-h1{
+  font-size: 16px;
+  font-weight: 1000;
+  letter-spacing: .2px;
+}
+
+.dlm-sub{
+  margin-top: 4px;
+  opacity: .72;
+  font-size: 12px;
+}
+
+.dlm-search{
+  height: 46px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.10);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  margin-bottom: 12px;
+}
+
+.dlm-search input{
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 850;
+}
+
+.dlm-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.dlm-pillWrap{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.dlm-pill{
+  height: 56px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.10);
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  text-align: left;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.dlm-pill:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.16);
+}
+
+.dlm-pill.is-on{
+  background: rgba(34,197,94,0.14);
+  border-color: rgba(34,197,94,0.22);
+}
+
+.dlm-pillIco{
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  opacity: .95;
+}
+
+.dlm-pillTxt{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 950;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dlm-levelIcon{
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  flex: 0 0 auto;
+}
+
+.dlm-rightMeta{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dlm-count{
+  min-width: 34px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  display: grid;
+  place-items: center;
+  font-weight: 950;
+  font-size: 12px;
+}
+
+.dlm-rank{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  font-size: 12px;
+  opacity: .70;
+}
+
+.dlm-pillBtns{
+  display: flex;
+  gap: 6px;
+}
+
+.dlm-miniBtn{
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.10);
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+.dlm-miniBtn:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.16);
+}
+.dlm-miniBtn:disabled{
+  opacity: .35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.dlm-danger{
+  border-color: rgba(239,68,68,0.22);
+  background: rgba(239,68,68,0.10);
+}
+
+.dlm-foot{
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  opacity: .72;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding-top: 12px;
+}
+
+.dlm-footDot{
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(34,197,94,0.70);
+  box-shadow: 0 0 0 6px rgba(34,197,94,0.10);
+}
+
+/* light mode */
+.ik-dashboard.theme-light .dlm-left,
+.ik-dashboard.theme-light .dlm-right{
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(15,23,42,0.10);
+}
+/* ================================
+   PRO cards (puestos por dept)
+================================ */
+.dlm-right{
+  position: relative;
+}
+
+.dlm-grid2{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.dlm-empty{
+  padding: 18px;
+  opacity: .72;
+  border-radius: 16px;
+  border: 1px dashed rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.08);
+}
+
+.dlm-card{
+  position: relative;
+  min-height: 82px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.10);
+  color: inherit;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  padding: 12px 12px;
+  overflow: hidden;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.12) inset;
+}
+
+.dlm-card:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.dlm-card::before{
+  content:"";
+  position:absolute;
+  inset: 0;
+  border-radius: 18px;
+  pointer-events:none;
+  box-shadow: 0 0 0 1px rgba(var(--dlm-accent-rgb), .18) inset;
+  opacity: .85;
+}
+
+.dlm-cardIco{
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  font-size: 22px;
+}
+
+.dlm-cardBody{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dlm-cardName{
+  font-weight: 1000;
+  letter-spacing: .2px;
+  line-height: 1.12;
+  min-width: 0;
+}
+
+.dlm-clamp2{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.dlm-cardMeta{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  opacity: .82;
+}
+
+.dlm-badge{
+  min-width: 34px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  display: grid;
+  place-items: center;
+  font-weight: 950;
+  font-size: 12px;
+}
+
+.dlm-rank2{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  font-size: 12px;
+  opacity: .80;
+}
+
+/* dots menu */
+.dlm-dots{
+  position:absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.14);
+  color: inherit;
+  cursor: pointer;
+  display:grid;
+  place-items:center;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+.dlm-dots:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+.dlm-dotsTxt{
+  font-weight: 1000;
+  letter-spacing: 2px;
+  opacity: .9;
+}
+
+/* menu popup */
+.dlm-menu{
+  position: absolute;
+  z-index: 9999;
+  width: 210px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10,10,14,0.88);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.dlm-menuItem{
+  width: 100%;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  cursor: pointer;
+  font-weight: 900;
+}
+.dlm-menuItem:hover{
+  background: rgba(255,255,255,0.08);
+}
+.dlm-menuDanger{
+  color: rgba(255,120,120,1);
+}
+
+/* ================================
+   Modal pro (tipo dept modal)
+================================ */
+.dlm-modalOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: rgba(0,0,0,0.55);
+  display: grid;
+  place-items: center;
+  padding: 10px; /* ✅ más espacio */
+  isolation: isolate;
+}
+
+
+.dlm-modal{
+  width: min(900px, 96vw); /* ✅ un poco más compacto */
+  max-height: calc(100vh - 20px); /* ✅ cabe SIEMPRE */
+  display: flex;               /* ✅ para controlar alto */
+  flex-direction: column;
+  border-radius: 18px;         /* ✅ menos “gordito” */
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10,10,14,0.92);
+  backdrop-filter: blur(18px);
+  overflow: hidden;            /* ✅ sin scrolls visibles */
+  box-shadow: 0 18px 70px rgba(0,0,0,0.55);
+}
+
+
+.dlm-modalTop{
+  padding: 10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.dlm-modalBadge{
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+.dlm-modalIconBtn{
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+}
+
+
+.dlm-modalTitle{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+}
+
+
+.dlm-modalH1{
+  font-weight: 1000;
+  letter-spacing: .2px;
+}
+.dlm-modalSub{
+  margin-top: 2px;
+  opacity: .70;
+  font-size: 12px;
+}
+
+.dlm-modalActions{
+  display:flex;
+  gap: 8px;
+}
+
+.dlm-modalIconBtn:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+.dlm-modalIconBtn.dlm-ok{
+  border-color: rgba(34,197,94,0.22);
+  background: rgba(34,197,94,0.10);
+}
+.dlm-modalIconBtn.dlm-danger{
+  border-color: rgba(239,68,68,0.22);
+  background: rgba(239,68,68,0.10);
+}
+
+.dlm-modalBody{
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 300px 1fr; /* ✅ más angosto */
+  gap: 10px;
+  flex: 1;          /* ✅ ocupa el resto del modal */
+  min-height: 0;    /* ✅ clave para que no fuerce overflow */
+  overflow: hidden; /* ✅ sin scrolls */
+}
+
+.dlm-modalForm{ gap: 10px; }
+
+.dlm-accHead{
+  height: 40px; /* ✅ */
+  padding: 0 12px;
+}
+.dlm-accBody{
+  padding: 10px 12px; /* ✅ */
+}
+
+.dlm-lineInput{
+  height: 38px;        /* ✅ */
+  border-radius: 12px; /* ✅ */
+  padding: 0 10px;
+}
+
+.dlm-icoGrid{ gap: 8px; }
+.dlm-icoCell{
+  height: 44px;        /* ✅ */
+  border-radius: 14px; /* ✅ */
+  font-size: 18px;
+}
+
+.dlm-permTop{
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dlm-chipBtn{
+  height: 32px; /* ✅ */
+  padding: 0 10px;
+  border-radius: 999px;
+}
+
+.dlm-permGrid{ gap: 8px; }
+.dlm-permPill{
+  height: 38px;        /* ✅ */
+  border-radius: 12px; /* ✅ */
+  padding: 0 10px;
+}
+
+.dlm-help{
+  margin-top: 8px;
+  padding-top: 8px;
+  font-size: 11px; /* ✅ */
+}
+
+
+
+.dlm-icoCell:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.16);
+}
+.dlm-icoCell.is-on{
+  border-color: rgba(var(--dlm-accent-rgb), .35);
+  background: rgba(var(--dlm-accent-rgb), .16);
+}
+
+/* light mode */
+.ik-dashboard.theme-light .dlm-menu{
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(15,23,42,0.12);
+  color: #0f172a;
+}
+.ik-dashboard.theme-light .dlm-modal{
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(15,23,42,0.12);
+  color: #0f172a;
+}
+/* ================================
+   Permisos / módulos (modal)
+================================ */
+.dlm-miniMeta{
+  margin-left: auto;
+  opacity: .72;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+
+
+.dlm-chipBtn:hover{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.18);
+}
+
+
+
+
+.dlm-permPill:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.18);
+}
+.dlm-permPill.is-on{
+  border-color: rgba(var(--dlm-accent-rgb), .35);
+  background: rgba(var(--dlm-accent-rgb), .14);
+}
+
+.dlm-permDot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.10);
+}
+.dlm-permDot.is-on{
+  background: rgba(var(--dlm-accent-rgb), .85);
+  box-shadow: 0 0 0 6px rgba(var(--dlm-accent-rgb), .12);
+  border-color: rgba(var(--dlm-accent-rgb), .40);
+}
+
+.dlm-permTxt{
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dlm-help{
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: .72;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding-top: 10px;
+}
+
+/* light mode */
+.ik-dashboard.theme-light .dlm-chipBtn,
+.ik-dashboard.theme-light .dlm-permPill{
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(255,255,255,0.60);
+}
+@media (max-height: 820px){
+  .dlm-modalBody{
+    grid-template-columns: 1fr; /* ✅ ya no 2 columnas */
+  }
+
+  .dlm-modalPreview{
+    flex-direction: row; /* ✅ preview en línea */
+    gap: 10px;
+  }
+
+  .dlm-cardPreview{
+    min-height: 64px; /* ✅ */
+  }
+
+  .dlm-card{
+    min-height: 70px; /* ✅ */
+  }
+
+  .dlm-permGrid{
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* ✅ más compacto */
+  }
+}
+/* ================================
+   FINAL OVERRIDES (DEBEN IR AL FINAL)
+================================ */
+.dlm-modal{
+  color-scheme: dark; /* evita inputs blancos en algunos navegadores */
+}
+
+.dlm-modal input,
+.dlm-modal button{
+  color: inherit;
+}
+
+.dlm-modal .dlm-lineInput{
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ✅ MINIMAL REAL: sin contenedores (sin borde / sin caja) */
+.dlm-modal .dlm-chipBtn,
+.dlm-modal .dlm-permPill,
+.dlm-modal .dlm-icoCell{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Hover sutil (sin borde) */
+.dlm-modal .dlm-chipBtn:hover,
+.dlm-modal .dlm-permPill:hover,
+.dlm-modal .dlm-icoCell:hover{
+  background: rgba(255,255,255,0.06) !important;
+  transform: translateY(-1px);
+}
+
+/* Selected usando color del dept (sin borde) */
+.dlm-modal .dlm-permPill.is-on{
+  background: rgba(var(--dlm-accent-rgb), .12) !important;
+}
+.dlm-modal .dlm-icoCell.is-on{
+  background: rgba(var(--dlm-accent-rgb), .14) !important;
+}
+
+.dlm-modal{
+  width: min(900px, 96vw);
+  max-height: calc(100vh - 20px);
+}
+
+.dlm-modalTop{ padding: 10px 12px; }
+
+.dlm-modalBody{
+  padding: 10px 12px;
+  grid-template-columns: 300px 1fr;
+  gap: 10px;
+}
+
+.dlm-accHead{ height: 40px; padding: 0 12px; }
+.dlm-accBody{ padding: 10px 12px; }
+
+.dlm-lineInput{ height: 38px; border-radius: 12px; }
+
+.dlm-icoCell{ height: 44px; border-radius: 14px; }
+
+.dlm-permPill{ height: 38px; border-radius: 12px; }
+.dlm-chipBtn{ height: 32px; }
+/* ================================
+   MINIMAL MODE (solo hover)
+   Pegar al FINAL
+================================ */
+
+/* layout modal */
+.dlm-modalBody{
+  grid-template-columns: 320px 1fr;
+  align-items: start;
+}
+
+.dlm-side{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.dlm-main{
+  min-height: 0;
+}
+
+.dlm-cardPreview{
+  border: 1px solid rgba(var(--dlm-accent-rgb), .22);
+  background: rgba(var(--dlm-accent-rgb), .10);
+}
+.dlm-cardPreview::before{
+  box-shadow: 0 0 0 1px rgba(var(--dlm-accent-rgb), .18) inset;
+  opacity: 1;
+}
+.dlm-cardPreview .dlm-cardIco{
+  border-color: rgba(var(--dlm-accent-rgb), .28);
+  background: rgba(var(--dlm-accent-rgb), .18);
+}
+.dlm-cardPreview .dlm-badge{
+  border-color: rgba(var(--dlm-accent-rgb), .28);
+  background: rgba(var(--dlm-accent-rgb), .16);
+}
+
+
+/* mini fields (sin cajas) */
+.dlm-miniGrid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.dlm-miniField{
+  padding: 0;
+}
+.dlm-miniLab{
+  font-size: 12px;
+  font-weight: 950;
+  opacity: .86;
+  margin-bottom: 6px;
+}
+
+/* inputs: sin contenedor */
+.dlm-lineInput{
+  width: 100%;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 12px;
+  height: 40px;
+  padding: 0 10px;
+}
+.dlm-lineInput:focus{
+  outline: none;
+  border-bottom-color: rgba(var(--dlm-accent-rgb), .55) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+
+/* “Accordions” sin caja */
+.dlm-acc,
+.dlm-accFlat{
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+.dlm-accHead{
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: transparent !important;
+  padding: 0 0 10px 0;
+  height: auto !important;
+}
+.dlm-accBody{
+  padding: 12px 0 0 0 !important;
+}
+
+/* icon cells / pills: sin borde hasta hover */
+.dlm-icoCell,
+.dlm-chipBtn,
+.dlm-permPill{
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+/* hover = aparece el “contenedor” */
+.dlm-icoCell:hover,
+.dlm-chipBtn:hover,
+.dlm-permPill:hover{
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  transform: translateY(-1px);
+}
+
+/* selected = usa color del dept */
+.dlm-icoCell.is-on{
+  background: rgba(var(--dlm-accent-rgb), .14) !important;
+  border-color: rgba(var(--dlm-accent-rgb), .30) !important;
+}
+.dlm-permPill.is-on{
+  background: rgba(var(--dlm-accent-rgb), .12) !important;
+  border-color: rgba(var(--dlm-accent-rgb), .26) !important;
+}
+
+/* dots del permiso con color dept */
+.dlm-permDot.is-on{
+  background: rgba(var(--dlm-accent-rgb), .90);
+  box-shadow: 0 0 0 6px rgba(var(--dlm-accent-rgb), .12);
+  border-color: rgba(var(--dlm-accent-rgb), .40);
+}
+/* ✅ Aire / spacing pro */
+.dlm-modalBody{
+  padding: 16px 16px !important;
+  gap: 16px !important;
+  grid-template-columns: 330px 1fr !important;
+}
+
+/* títulos */
+.dlm-accTitle{
+  font-weight: 1000;
+  letter-spacing: .2px;
+}
+
+/* iconos con más aire */
+.dlm-icoGrid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px !important;
+  margin-top: 6px;
+}
+.dlm-icoCell{
+  height: 46px !important;
+  border-radius: 14px !important;
+}
+
+/* módulos con más aire y menos “encimado” */
+.dlm-permTop{
+  display: flex;
+  gap: 10px !important;
+  margin-bottom: 12px !important;
+  flex-wrap: wrap;
+}
+
+.dlm-permGrid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px !important;
+}
+
+.dlm-permPill{
+  height: 40px !important;
+  border-radius: 14px !important;
+  padding: 0 12px !important;
+}
+
+/* dot + texto más respirado */
+.dlm-permDot{ margin-right: 10px; }
+.dlm-permTxt{ font-weight: 900; }
+/* ================================
+   Modal animations (enter/exit)
+================================ */
+.dlm-modalOverlay{
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.dlm-modalOverlay.is-enter{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dlm-modalOverlay.is-exit{
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.dlm-modal{
+  transform: translateY(10px) scale(.985);
+  opacity: 0;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+.dlm-modalOverlay.is-enter .dlm-modal{
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.dlm-modalOverlay.is-exit .dlm-modal{
+  transform: translateY(10px) scale(.985);
+  opacity: 0;
+}
