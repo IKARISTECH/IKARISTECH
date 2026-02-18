@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.53092d76.css",
-    "main.js": "/static/js/main.b729855e.js",
+    "main.js": "/static/js/main.47e44c11.js",
     "static/media/SAAS.png": "/static/media/SAAS.3a105ebc0f20be3982d5.png",
     "static/media/IKARIS_ST.png": "/static/media/IKARIS_ST.c7c8aa32da2150aa0512.png",
     "static/media/ikaris-tech.png": "/static/media/ikaris-tech.3ad31d4fe8b8829a5fe1.png",
@@ -9,10 +9,10 @@
     "static/media/IKAR.png": "/static/media/IKAR.e012170a9f0efd5ac57d.png",
     "index.html": "/index.html",
     "main.53092d76.css.map": "/static/css/main.53092d76.css.map",
-    "main.b729855e.js.map": "/static/js/main.b729855e.js.map"
+    "main.47e44c11.js.map": "/static/js/main.47e44c11.js.map"
   },
   "entrypoints": [
     "static/css/main.53092d76.css",
-    "static/js/main.b729855e.js"
+    "static/js/main.47e44c11.js"
   ]
 }

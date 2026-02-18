@@ -303,7 +303,8 @@ function IconSelect({
     return `${h}h`;
   }
 
-const IK_AWAY_AFTER_MS = 60 * 1000;        // 1 min sin actividad => AUSENTE
+const IK_AWAY_AFTER_MS = 5 * 60 * 1000; // 5 min
+
 const IK_AWAY_CLOCK_AFTER_MS = 30 * 60 * 1000; // 30 min => mostrar hora completa
 
 function formatClock(iso) {
@@ -2346,87 +2347,59 @@ const lvlList = (
           <span />
         </button>
       </td>
-  <td>
-    {(() => {
-      const authId = String(u.auth_user_id || "");
-      const lastIso = lastSeen?.[authId] || u.last_seen_at || null;
+<td>
+  {(() => {
+    const authId = String(u.auth_user_id || "");
+    const lastIso = lastSeen?.[authId] || u.last_seen_at || null;
+    const activityIso = activityMap?.[authId] || null;
 
-      const st = getConnStatus({
-        authId,
-        onlineSet,
-        lastIso,
-      });
+    const st = getConnStatus({
+      authId,
+      onlineSet,
+      lastIso,
+      activityIso,
+    });
 
-      const lastClock = formatLastSeen(lastIso);
+    const lastClock = formatLastSeen(lastIso);
 
-      // ✅ ícono principal (NO se quitan íconos)
-const mainIcon =
-  st.kind === "online" ? <MdWifi /> :
-  st.kind === "away" ? <MdSchedule /> :
-  st.kind === "recent" ? <MdSchedule /> :
-  <MdWifiOff />;
+    // ✅ ícono principal
+    const mainIcon =
+      st.kind === "online" ? <MdWifi /> :
+      st.kind === "away" ? <MdSchedule /> :
+      st.kind === "recent" ? <MdSchedule /> :
+      <MdWifiOff />;
 
+    // ✅ tooltip: si está online NO muestres "Última"
+    const connTitle =
+      st.kind === "online"
+        ? st.label
+        : `${st.label} · Última: ${lastClock}`;
 
-      return (
-        <div
-         className={`ap-conn ${
-  st.kind === "online" ? "is-on" :
-  st.kind === "away" ? "is-away" :
-  st.kind === "recent" ? "is-recent" :
-  "is-off"
-}`}
+    return (
+      <div
+        className={`ap-conn ${
+          st.kind === "online" ? "is-on" :
+          st.kind === "away" ? "is-away" :
+          st.kind === "recent" ? "is-recent" :
+          "is-off"
+        }`}
+        title={connTitle}
+      >
+        <span className="ap-connIco">{mainIcon}</span>
 
-          title={`${st.label} · Última: ${lastClock}`}
-        >
-          <span className="ap-connIco">
-            {mainIcon}
+        <span className="ap-connState">{st.label}</span>
+
+        {/* ✅ solo mostrar última hora si NO está online */}
+        {st.kind !== "online" ? (
+          <span className="ap-connLast">
+            <MdSchedule />
+            {lastClock}
           </span>
-
-          {/* ✅ texto de estado */}
-          <span className="ap-connState">
-            {st.label}
-          </span>
-
-          {/* ✅ mantenemos el reloj + hora */}
-  {/* ✅ solo mostrar última hora si NO está online */}
-  {st.kind !== "online" ? (
-    <span className="ap-connLast">
-      <MdSchedule />
-      {lastClock}
-    </span>
-  ) : null}
-
-        </div>
-      );
-      // ✅ tooltip: si está online NO muestres "Última"
-const connTitle =
-  st.kind === "online"
-    ? st.label
-    : `${st.label} · Última: ${lastClock}`;
-
-return (
-  <div
-    className={`ap-conn ${
-      st.kind === "online" ? "is-on" : st.kind === "recent" ? "is-recent" : "is-off"
-    }`}
-    title={connTitle}
-  >
-    <span className="ap-connIco">{mainIcon}</span>
-
-    <span className="ap-connState">{st.label}</span>
-
-    {/* ✅ solo mostrar última hora si NO está online */}
-    {st.kind !== "online" ? (
-      <span className="ap-connLast">
-        <MdSchedule />
-        {lastClock}
-      </span>
-    ) : null}
-  </div>
-);
-
-    })()}
-  </td>
+        ) : null}
+      </div>
+    );
+  })()}
+</td>
 
 
 
