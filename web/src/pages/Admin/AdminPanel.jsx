@@ -316,11 +316,24 @@ function formatClock(iso) {
   return `${hh}:${mm}`;
 }
 
-function getConnStatus({ authId, onlineSet, lastIso, activityIso }) {
+function getConnStatus({ authId, onlineSet, lastIso, activityIso, forcedIso }) {
+
   const hasAuth = !!authId;
   const presenceOnline = hasAuth && onlineSet?.has(String(authId));
 
   const now = Date.now();
+const forcedMs = forcedIso ? new Date(forcedIso).getTime() : NaN;
+const forcedRecently = Number.isFinite(forcedMs) ? (now - forcedMs) : Infinity;
+
+// ✅ si hay “forced_offline_at”, corta a OFFLINE inmediato
+// (aunque last_seen sea reciente)
+if (!presenceOnline && forcedRecently <= 10 * 60 * 1000) {
+  return {
+    kind: "offline",
+    label: "Desconectado",
+    diff: forcedRecently,
+  };
+}
 
   const lastSeenMs = lastIso ? new Date(lastIso).getTime() : NaN;
   const diffSeen = Number.isFinite(lastSeenMs) ? (now - lastSeenMs) : Infinity;
@@ -1047,7 +1060,6 @@ return (users || []).filter((u) => {
   // 3) level filter
   if (fLevel && String(u.level_id || "") !== String(fLevel)) return false;
 
-      // 4) conn filter (presence usa auth_user_id)
   // 4) conn filter (online / offline usando presencia + last_seen)
   if (fConn !== "all") {
 const authId = String(u.auth_user_id || "");
@@ -2353,12 +2365,16 @@ const lvlList = (
     const lastIso = lastSeen?.[authId] || u.last_seen_at || null;
     const activityIso = activityMap?.[authId] || null;
 
-    const st = getConnStatus({
-      authId,
-      onlineSet,
-      lastIso,
-      activityIso,
-    });
+const forcedIso = u.forced_offline_at || null;
+
+const st = getConnStatus({
+  authId,
+  onlineSet,
+  lastIso,
+  activityIso,
+  forcedIso,
+});
+
 
     const lastClock = formatLastSeen(lastIso);
 

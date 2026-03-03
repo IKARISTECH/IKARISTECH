@@ -8,7 +8,7 @@ import AuthLayout from "./AuthLayout";
 import "./auth.css";
 import ikarisLogo from "../assets/IKARIS_ST.png";
 import saasImg from "../assets/SAAS.png";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+
 
 
 
@@ -308,15 +308,16 @@ sidePoints={[
                 required
               />
 
-              <button
-                type="button"
-                className="pw-eye"
-                onClick={() => setShowPass((v) => !v)}
-                aria-label={showPass ? "Ocultar contraseña" : "Mostrar contraseña"}
-                title={showPass ? "Ocultar" : "Mostrar"}
-              >
-                {showPass ? <FiEyeOff /> : <FiEye />}
-              </button>
+<button
+  type="button"
+  className="pw-eye"
+  onClick={() => setShowPass((v) => !v)}
+  aria-label={showPass ? "Ocultar contraseña" : "Mostrar contraseña"}
+  title={showPass ? "Ocultar" : "Mostrar"}
+>
+  {/* ✅ bloqueado cuando está oculta (ojo tachado), libre cuando está visible */}
+  <span className={`eye-ic ${showPass ? "on" : ""}`} />
+</button>
             </div>
           </div>
 

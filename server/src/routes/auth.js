@@ -270,7 +270,7 @@ router.post("/ping", requireAuthUserOnly, async (req, res) => {
 
     const { error: upErr } = await supabaseAdmin
       .from("company_users")
-      .update({ last_seen_at: now })
+      .update({ last_seen_at: now, forced_offline_at: null })
       .eq("id", me.id);
 
     if (upErr) return res.status(500).json({ error: upErr.message });
@@ -280,6 +280,40 @@ router.post("/ping", requireAuthUserOnly, async (req, res) => {
     return res.status(500).json({ error: String(e?.message || e) });
   }
 });
+
+// ✅ Marcar OFFLINE forzado (cuando cierra pestaña / logout)
+router.post("/offline", requireAuthUserOnly, async (req, res) => {
+  try {
+    const authUser = req.authUser;
+
+    const { data: memberships, error: memErr } = await supabaseAdmin
+      .from("company_users")
+      .select("id")
+      .eq("auth_user_id", authUser.id)
+      .eq("active", true)
+      .limit(1);
+
+    if (memErr) return res.status(500).json({ error: memErr.message });
+
+    const me = memberships?.[0];
+    if (!me?.id) return res.status(403).json({ error: "No membership" });
+
+    const now = new Date().toISOString();
+
+    const { error: upErr } = await supabaseAdmin
+      .from("company_users")
+      .update({ forced_offline_at: now, last_seen_at: now })
+      .eq("id", me.id);
+
+    if (upErr) return res.status(500).json({ error: upErr.message });
+
+    return res.status(200).json({ ok: true, at: now });
+  } catch (e) {
+    return res.status(500).json({ error: String(e?.message || e) });
+  }
+});
+
+
 // ✅ Marcar que ya cambió contraseña (primer login)
 router.post("/mark-password-changed", requireAuthUserOnly, async (req, res) => {
   try {

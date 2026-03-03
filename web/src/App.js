@@ -15,7 +15,7 @@ import Register from "./pages/Register";
 import AuthCallback from "./pages/AuthCallback";
 import CompleteOnboarding from "./pages/CompleteOnboarding";
 
-import Dashboard from "./pages/Dashboard/Dashboard";
+import DashboardPage from "./pages/Dashboard/DashboardPage";
 import { supabase } from "./supabaseClient";
 import { apiFetch } from "./api";
 
@@ -230,14 +230,14 @@ function AppRoutes({ boot }) {
         }
       />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute authed={boot.authed}>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+<Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute authed={boot.authed}>
+      <DashboardPage ctx={ctx} />
+    </ProtectedRoute>
+  }
+/>
 
       {/* ✅ ADMIN */}
       <Route

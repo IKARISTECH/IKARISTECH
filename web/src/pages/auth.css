@@ -13,44 +13,71 @@
 }
 
 *{ box-sizing:border-box; }
+
+/* ✅ Deja el body neutro para no romper dashboard/register */
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: #070A12; /* fallback */
+  color: #111;         /* neutro */
+}
 
-  /* ✅ hardcode para no depender de vars globales */
+/* ✅ Ahora el look Auth vive SOLO dentro del wrapper */
+.auth-wrap{
+  color: #EAF0FF;
+
   background:
     radial-gradient(1200px 700px at 20% 10%, rgba(124,58,237,.35), transparent 60%),
     radial-gradient(900px 600px at 90% 20%, rgba(34,211,238,.22), transparent 60%),
     radial-gradient(800px 700px at 60% 100%, rgba(124,58,237,.25), transparent 60%),
     #070A12;
-  color: #EAF0FF;
 }
 
 
 .auth-wrap{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-    padding:16px;
+  /* ✅ usa viewport “real” en móvil (evita cortes por barra/teclado) */
+  min-height: 100svh;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ✅ safe-area + padding consistente */
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+
+  /* ✅ si el contenido no cabe, NO se corta: se puede scrollear */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .auth-card{
   width: min(1100px, 100%);
-  display:grid;
+  display: grid;
   grid-template-columns: 1.1fr .9fr;
+
   border: 1px solid var(--border);
   background: rgba(255,255,255,.04);
   backdrop-filter: blur(14px);
   border-radius: 22px;
-  overflow:hidden;
+
+  /* ✅ importante: card NUNCA se sale del viewport */
+  max-height: calc(100svh - 32px);
+
+  /* ✅ PERMITE overlays (tooltips) sin recorte */
+  overflow: visible;
+
   box-shadow: 0 40px 120px rgba(0,0,0,.55);
 }
 
 .auth-left{
-  padding:26px 34px 22px;
+  padding: 26px 34px 22px;
 
+  /* ✅ overlays NO se cortan */
+  overflow: visible;
 
   /* ✅ fondo más oscuro para que el texto claro se lea perfecto */
   background:
@@ -200,9 +227,32 @@ body{
 }
 
 @media (max-width: 900px){
-  .auth-card{ grid-template-columns: 1fr; }
+  .auth-card{
+    grid-template-columns: 1fr;
+    /* ✅ en móvil el card ocupa casi todo, sin reventar bordes */
+    width: 100%;
+    border-radius: 20px;
+  }
+
   .auth-right{ display:none; }
-  .row2{ grid-template-columns:1fr; }
+  .row2{ grid-template-columns: 1fr; }
+
+  /* ✅ compactar sin aplastar */
+  .auth-left{
+    padding: clamp(16px, 4vw, 22px);
+  }
+
+  .auth-brand-logo{
+    width: clamp(160px, 52vw, 230px);
+  }
+
+  .auth-title{
+    font-size: clamp(22px, 6vw, 28px);
+  }
+
+  .auth-subtitle{
+    font-size: clamp(13px, 3.7vw, 15px);
+  }
 }
 
 .label{
@@ -355,7 +405,7 @@ body{
 
 .pw-float{
   position:absolute;
-  z-index:20;
+  z-index:9999;
   left:0;
   top:calc(100% + 8px);
   width:100%;
@@ -1087,3 +1137,160 @@ body{
   opacity: .96;
   color: rgba(255,255,255,.92);
 }
+/* =========================
+   AUTH WIZARD (steps)
+   estilo tipo "Create Report"
+========================= */
+
+.auth-steps{
+  margin-top: 8px;
+}
+
+/* stepper horizontal */
+.auth-stepper{
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin: 8px auto 14px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.auth-step{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.auth-step__dot{
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.06);
+  color: rgba(234,240,255,.88);
+}
+
+.auth-step__label{
+  font-weight: 900;
+  font-size: 12.5px;               /* ✅ un poco más legible */
+  color: rgba(234,240,255,.78);
+  letter-spacing: .2px;
+
+  /* ✅ evita recorte feo */
+  white-space: normal;
+  line-height: 1.05;
+
+  /* ✅ máximo 2 líneas (pro) */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.auth-step__line{
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.10);
+}
+
+.auth-step.on .auth-step__dot{
+  border-color: rgba(34,211,238,.25);
+  background: rgba(34,211,238,.08);
+  box-shadow: 0 0 0 4px rgba(34,211,238,.10);
+}
+.auth-step.on .auth-step__label{
+  color: rgba(234,240,255,.92);
+}
+
+.auth-step__line.on{
+  background: linear-gradient(90deg, rgba(124,58,237,.65), rgba(34,211,238,.55));
+}
+
+/* caja interna del wizard (panel limpio) */
+.auth-stepbox{
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
+  border-radius: 18px;
+  padding: 14px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* acciones tipo wizard */
+.auth-step-actions{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+.auth-step-actions > span{
+  display: block;
+}
+
+/* footer link centrado en todos los steps */
+.auth-step-foot{
+  margin-top: 12px;
+  text-align: center;
+}
+
+@media (max-width: 520px){
+  .auth-stepper{
+    max-width: 100%;
+    gap: 10px;               /* ✅ más aire para que no se encime */
+  }
+
+  .auth-step__dot{
+    width: 30px;             /* ✅ un poco más grande */
+    height: 30px;
+    border-radius: 11px;
+  }
+
+  .auth-step__label{
+    font-size: 12px;         /* ✅ no lo bajes tanto */
+    line-height: 1.05;
+    -webkit-line-clamp: 2;   /* ✅ mantiene 2 líneas */
+  }
+
+  .auth-stepbox{
+    padding: 12px;
+    border-radius: 16px;
+  }
+}
+/* =========================
+   Scrollbar invisible (Auth)
+========================= */
+
+/* El scroll real lo hace el wrapper */
+.auth-wrap{
+  overflow-y: auto;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge legacy */
+}
+.auth-wrap::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+}
+/* =========================
+   EYE BUTTON: sin contenedor (solo ícono)
+========================= */
+.pw-eye{
+  width: 36px;
+  height: 36px;
+  border: 0 !important;
+  background: transparent !important; /* ✅ sin cuadro */
+  border-radius: 0 !important;        /* ✅ sin forma */
+  padding: 0 !important;
+
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: .9;
+}
+
+.pw-eye:hover{ opacity: 1; }

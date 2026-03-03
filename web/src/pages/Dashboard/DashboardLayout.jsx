@@ -7,11 +7,15 @@ import { apiFetch } from "../../api";
 
 
 function PresenceTracker({ ctx }) {
-  useEffect(() => {
-    let ch = null;
-    let heartbeat = null;
-    let dbHeartbeat = null;
-    let alive = true;
+useEffect(() => {
+  let ch = null;
+  let heartbeat = null;
+  let dbHeartbeat = null;
+  let alive = true;
+
+  // ✅ refs para cleanup (evita eslint no-undef)
+  let __ik_onUnload = null;
+  let __ik_authSub = null;
 
 const emit = (onlineSet, lastSeenObj, activityObj = null) => {
   try {
@@ -51,6 +55,47 @@ const emit = (onlineSet, lastSeenObj, activityObj = null) => {
       if (!user?.id) return;
 
       const authId = String(user.id);
+// ✅ avisar OFFLINE al cerrar pestaña / cerrar sesión (instantáneo)
+const sendOffline = () => {
+  try {
+    const url = "/api/auth/offline";
+    const body = JSON.stringify({ company_id: companyId });
+
+    // intenta beacon (mejor para unload)
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: "application/json" });
+      navigator.sendBeacon(url, blob);
+      return;
+    }
+
+    // fallback
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      credentials: "include",
+      keepalive: true,
+    }).catch(() => {});
+  } catch (_) {}
+};
+
+// antes de cerrar pestaña
+const onUnload = () => sendOffline();
+
+// cuando se va a login (logout)
+const onAuth = (event) => {
+  if (event === "SIGNED_OUT") sendOffline();
+};
+
+window.addEventListener("beforeunload", onUnload);
+const { data: authSub } = supabase.auth.onAuthStateChange((event) => onAuth(event));
+
+// ✅ guarda refs para cleanup (SIN redeclarar)
+__ik_onUnload = onUnload;
+__ik_authSub = authSub; 
+
+// ... más abajo cuando ya creas ch, si quieres guardarlos ahí:
+
 
       // ✅ estado inicial desde localStorage (por si AdminPanel abre antes)
       let onlineSet = new Set();
@@ -251,8 +296,8 @@ await ch.subscribe(async (status) => {
       if (heartbeat) clearInterval(heartbeat);
       if (dbHeartbeat) clearInterval(dbHeartbeat);
 
-      if (ch?.__ik_onVis2) {
-        document.removeEventListener("visibilitychange", ch.__ik_onVis2);
+      if (ch?.__ik_onVis3) {
+        document.removeEventListener("visibilitychange", ch.__ik_onVis3);
       }
 // ✅ cleanup activity tracker
 if (ch?.__ik_onUserActivity) {
@@ -265,6 +310,9 @@ if (ch?.__ik_onUserActivity) {
 if (ch?.__ik_onFocus) window.removeEventListener("focus", ch.__ik_onFocus);
 if (ch?.__ik_onVis3) document.removeEventListener("visibilitychange", ch.__ik_onVis3);
 if (ch?.__ik_onOnline2) window.removeEventListener("online", ch.__ik_onOnline2);
+// ✅ cleanup offline hooks
+try { window.removeEventListener("beforeunload", __ik_onUnload); } catch (_) {}
+try { __ik_authSub?.unsubscribe?.(); } catch (_) {}
 
       if (ch) supabase.removeChannel(ch);
     };
@@ -276,6 +324,28 @@ if (ch?.__ik_onOnline2) window.removeEventListener("online", ch.__ik_onOnline2);
 
 export default function DashboardLayout({ ctx, children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // ✅ AUTO-COLLAPSE en pantallas chicas (drawer móvil)
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+
+    const apply = () => {
+      if (mq.matches) setSidebarCollapsed(true);
+    };
+
+    apply();
+
+    const onChange = () => apply();
+
+    // compat: Chrome/Safari modernos + fallback
+    try {
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    } catch (_) {
+      mq.addListener(onChange);
+      return () => mq.removeListener(onChange);
+    }
+  }, []);
 
   // ✅ theme global (light = solemne claro, iris = tornasol oscuro)
   const LS_THEME = "ik_theme";

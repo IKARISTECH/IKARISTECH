@@ -1,5 +1,6 @@
+// web/src/pages/CompleteOnboarding.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { apiFetch } from "../api";
 import AuthLayout from "./AuthLayout";
@@ -57,10 +58,40 @@ function slugifyCompany(name) {
     .replace(/\-+/g, "-");
 }
 
+function useMediaQuery(query) {
+  const get = () => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(query).matches;
+  };
+  const [matches, setMatches] = useState(get);
+
+  useEffect(() => {
+    const m = window.matchMedia(query);
+    const onChange = () => setMatches(m.matches);
+
+    if (m.addEventListener) m.addEventListener("change", onChange);
+    else m.addListener(onChange);
+
+    setMatches(m.matches);
+
+    return () => {
+      if (m.removeEventListener) m.removeEventListener("change", onChange);
+      else m.removeListener(onChange);
+    };
+  }, [query]);
+
+  return matches;
+}
+
 export default function CompleteOnboarding() {
-  const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
+
+  // ✅ SOLO móvil (bajo 900px) usa wizard
+  const stepMode = useMediaQuery("(max-width: 900px)");
+
+  // ✅ Wizard step: 1..2 (solo aplica en móvil)
+  const [step, setStep] = useState(1);
 
   const [form, setForm] = useState({
     representative_name: "",
@@ -71,7 +102,6 @@ export default function CompleteOnboarding() {
     marketing_opt_in: false,
   });
 
-  // ✅ Precarga desde state o localStorage
   useEffect(() => {
     const fromState = location.state?.prefill || null;
     const fromLsRaw = localStorage.getItem("IKARIS_PENDING_COMPANY");
@@ -96,25 +126,25 @@ export default function CompleteOnboarding() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    // ✅ en móvil wizard, solo submit en step 2
+    if (stepMode && step !== 2) return;
+
     setLoading(true);
-
     try {
-await apiFetch("/auth/register-company", {
-  method: "POST",
-  body: JSON.stringify({
-    representative_name: form.representative_name?.trim(),
-    company_name: form.company_name?.trim(),
-    company_slug, // ✅ NUEVO: evita slug null en DB
-    country: form.country?.trim(),
-    sector: form.sector,
-    organization_type: form.organization_type,
-    marketing_opt_in: !!form.marketing_opt_in,
-  }),
-});
+      await apiFetch("/auth/register-company", {
+        method: "POST",
+        body: JSON.stringify({
+          representative_name: form.representative_name?.trim(),
+          company_name: form.company_name?.trim(),
+          company_slug, // ✅ SE ENVÍA (pero NO se muestra)
+          country: form.country?.trim(),
+          sector: form.sector,
+          organization_type: form.organization_type,
+          marketing_opt_in: !!form.marketing_opt_in,
+        }),
+      });
 
-
-
-      // ✅ Ya quedó creada: limpiamos pendiente
       localStorage.removeItem("IKARIS_PENDING_COMPANY");
 
       await Swal.fire({
@@ -125,7 +155,6 @@ await apiFetch("/auth/register-company", {
       });
 
       window.location.replace("/dashboard");
-
     } catch (err) {
       await Swal.fire({
         icon: "error",
@@ -138,26 +167,54 @@ await apiFetch("/auth/register-company", {
     }
   }
 
+  async function goNext() {
+    if (!stepMode) return;
+
+    if (step === 1) {
+      const rep = String(form.representative_name || "").trim();
+      const comp = String(form.company_name || "").trim();
+      if (!rep || !comp) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Faltan datos",
+          text: "Completa el nombre del representante y la empresa.",
+          confirmButtonText: "Ok",
+        });
+        return;
+      }
+      setStep(2);
+    }
+  }
+
+  function goBack() {
+    if (!stepMode) return;
+    setStep((s) => Math.max(1, s - 1));
+  }
+
   return (
     <AuthLayout
       title="Completar registro"
       subtitle="Solo falta crear tu empresa para empezar."
       sideTitle="Onboarding"
       sideText="Esto define tu espacio multi-empresa y tu rol ARCHON."
+      hideRight
     >
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <div>
-          <div className="label">Nombre y apellidos del representante</div>
-          <input
-            className="input"
-            value={form.representative_name}
-            onChange={(e) => onChange("representative_name", e.target.value)}
-            required
-            placeholder="Nombre completo"
-          />
-        </div>
+      {/* =========================
+         DESKTOP (sin steps)
+      ========================= */}
+      {!stepMode ? (
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div>
+            <div className="label">Nombre y apellidos del representante</div>
+            <input
+              className="input"
+              value={form.representative_name}
+              onChange={(e) => onChange("representative_name", e.target.value)}
+              required
+              placeholder="Nombre completo"
+            />
+          </div>
 
-        <div className="row2">
           <div>
             <div className="label">Empresa</div>
             <input
@@ -169,69 +226,181 @@ await apiFetch("/auth/register-company", {
             />
           </div>
 
-<div>
-  <div className="label">Slug (auto)</div>
-  <input className="input" value="(se genera automáticamente)" readOnly />
-</div>
+          <div className="row2">
+            <div>
+              <div className="label">País</div>
+              <input
+                className="input"
+                value={form.country}
+                onChange={(e) => onChange("country", e.target.value)}
+                required
+              />
+            </div>
 
-
-        </div>
-
-        <div className="row2">
-          <div>
-            <div className="label">País</div>
-            <input
-              className="input"
-              value={form.country}
-              onChange={(e) => onChange("country", e.target.value)}
-              required
-            />
+            <div>
+              <div className="label">Sector</div>
+              <select
+                className="select"
+                value={form.sector}
+                onChange={(e) => onChange("sector", e.target.value)}
+              >
+                {SECTORS.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
-            <div className="label">Sector</div>
+            <div className="label">Tipo de organización</div>
             <select
               className="select"
-              value={form.sector}
-              onChange={(e) => onChange("sector", e.target.value)}
+              value={form.organization_type}
+              onChange={(e) => onChange("organization_type", e.target.value)}
             >
-              {SECTORS.map((s) => (
+              {ORG_TYPES.map((s) => (
                 <option key={s} value={s}>
                   {s}
                 </option>
               ))}
             </select>
           </div>
+
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={form.marketing_opt_in}
+              onChange={(e) => onChange("marketing_opt_in", e.target.checked)}
+            />
+            Acepto recibir correos con actualizaciones/ofertas (opcional)
+          </label>
+
+          <button className="btn" disabled={loading} type="submit">
+            {loading ? "Creando..." : "Crear empresa y entrar"}
+          </button>
+        </form>
+      ) : null}
+
+      {/* =========================
+         MÓVIL (wizard con steps)
+      ========================= */}
+      {stepMode ? (
+        <div className="auth-steps">
+          <div className="auth-stepper" aria-label="Progreso de onboarding">
+            <div className={`auth-step ${step >= 1 ? "on" : ""}`}>
+              <div className="auth-step__dot">1</div>
+              <div className="auth-step__label">Empresa</div>
+            </div>
+            <div className={`auth-step__line ${step >= 2 ? "on" : ""}`} />
+            <div className={`auth-step ${step >= 2 ? "on" : ""}`}>
+              <div className="auth-step__dot">2</div>
+              <div className="auth-step__label">Detalles</div>
+            </div>
+          </div>
+
+          <div className="auth-stepbox">
+            <form className="auth-form" onSubmit={handleSubmit}>
+              {step === 1 ? (
+                <>
+                  <div>
+                    <div className="label">Nombre y apellidos del representante</div>
+                    <input
+                      className="input"
+                      value={form.representative_name}
+                      onChange={(e) => onChange("representative_name", e.target.value)}
+                      required
+                      placeholder="Nombre completo"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="label">Empresa</div>
+                    <input
+                      className="input"
+                      value={form.company_name}
+                      onChange={(e) => onChange("company_name", e.target.value)}
+                      required
+                      placeholder="Nombre de la empresa"
+                    />
+                  </div>
+
+                  <div className="auth-step-actions">
+                    <span />
+                    <button type="button" className="btn" onClick={goNext} disabled={loading}>
+                      Siguiente
+                    </button>
+                  </div>
+                </>
+              ) : null}
+
+              {step === 2 ? (
+                <>
+                  <div>
+                    <div className="label">País</div>
+                    <input
+                      className="input"
+                      value={form.country}
+                      onChange={(e) => onChange("country", e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <div className="label">Sector</div>
+                    <select
+                      className="select"
+                      value={form.sector}
+                      onChange={(e) => onChange("sector", e.target.value)}
+                    >
+                      {SECTORS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <div className="label">Tipo de organización</div>
+                    <select
+                      className="select"
+                      value={form.organization_type}
+                      onChange={(e) => onChange("organization_type", e.target.value)}
+                    >
+                      {ORG_TYPES.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={form.marketing_opt_in}
+                      onChange={(e) => onChange("marketing_opt_in", e.target.checked)}
+                    />
+                    Acepto recibir correos con actualizaciones/ofertas (opcional)
+                  </label>
+
+                  <div className="auth-step-actions">
+                    <button type="button" className="btn-ghost" onClick={goBack} disabled={loading}>
+                      Atrás
+                    </button>
+
+                    <button className="btn" disabled={loading} type="submit">
+                      {loading ? "Creando..." : "Crear empresa y entrar"}
+                    </button>
+                  </div>
+                </>
+              ) : null}
+            </form>
+          </div>
         </div>
-
-        <div>
-          <div className="label">Tipo de organización</div>
-          <select
-            className="select"
-            value={form.organization_type}
-            onChange={(e) => onChange("organization_type", e.target.value)}
-          >
-            {ORG_TYPES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={form.marketing_opt_in}
-            onChange={(e) => onChange("marketing_opt_in", e.target.checked)}
-          />
-          Acepto recibir correos con actualizaciones/ofertas (opcional)
-        </label>
-
-        <button className="btn" disabled={loading}>
-          {loading ? "Creando..." : "Crear empresa y entrar"}
-        </button>
-      </form>
+      ) : null}
     </AuthLayout>
   );
 }

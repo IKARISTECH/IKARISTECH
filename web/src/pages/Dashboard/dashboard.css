@@ -106,6 +106,11 @@
   align-items: center;
   padding: 14px 16px;
 
+  /* ✅ FULL-BLEED: toca extremos aunque el parent tenga padding */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+
   /* Tornasol SOLO aquí */
   background:
     radial-gradient(1000px 160px at 12% 0%, rgba(121,86,255,.28), transparent 62%),
@@ -116,6 +121,9 @@
   border-bottom: 1px solid rgba(255,255,255,.10);
   box-shadow: 0 18px 70px rgba(0,0,0,.35);
   color: rgba(255,255,255,.92);
+
+  /* ✅ opcional: sin esquinas si algún contenedor le aplica radius visual */
+  border-radius: 0;
 }
 
 
@@ -1615,45 +1623,129 @@
   flex-direction: column;
   gap: 8px;
 }
-/* Actions bar */
-.ik-actions{
+/* =========================
+   ✅ Home: Action Dock (ICON-ONLY)
+   - sin contenedores blancos
+   - tornasol morado
+   - 6 iconos siempre “fit” (mobile safe)
+========================= */
+
+.ik-actionDock{
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 6px 6px 12px;
+  flex-direction: row;
+  justify-content: center;   /* ✅ centrado real */
+  align-items: center;
+
+  gap: 10px;                 /* ✅ más juntos */
+  padding: 8px 0 10px;       /* ✅ quita padding lateral “invisible” */
+
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-.ik-actionBtn{
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: linear-gradient(180deg, var(--paper), var(--paper2));
-  color: var(--text);
-  font-weight: 900;
-  letter-spacing: .2px;
-  cursor: pointer;
-  box-shadow: var(--shadow2);
+.ik-actionDock::-webkit-scrollbar{
+  width: 0;
+  height: 0;
 }
 
-.ik-actionBtn:hover{
-  background: rgba(255,255,255,.07);
-  border-color: rgba(255,255,255,.14);
-}
-.ik-actionBtn.ghost{
+.ik-actionIcon{
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
   background: transparent;
-  border-color: var(--stroke);
-  color: var(--muted);
-  box-shadow: none;
-}
+  padding: 0;
 
-
-/* KPI strip */
-.ik-kpis{
+  height: 54px;
+  width: auto;        /* ✅ ya no ocupa todo el dock */
+  flex: 0 0 auto;     /* ✅ no se estira */
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  padding: 0 6px 14px;
+  place-items: center;
+
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  transition: transform .14s ease;
 }
+
+.ik-actionIcon:hover{
+  transform: translateY(-1px);
+}
+.ik-actionIcon:active{
+  transform: translateY(0);
+}
+.ik-actionIcon:focus{ outline: none; }
+.ik-actionIcon:focus-visible{
+  filter: drop-shadow(0 0 0 rgba(0,0,0,0));
+}
+
+.ik-actionIcon__ic{
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+
+  /* ✅ MISMA vibra tornasol que topbar (radiales + base oscura) */
+  background:
+    radial-gradient(90px 60px at 20% 15%, rgba(121,86,255,.55), transparent 60%),
+    radial-gradient(90px 60px at 80% 20%, rgba(86,97,246,.45), transparent 60%),
+    linear-gradient(180deg, rgba(8,10,18,.92), rgba(10,12,20,.72));
+
+  border: 1px solid rgba(255,255,255,.10);
+
+  box-shadow:
+    0 18px 54px rgba(0,0,0,.22),
+    0 18px 60px rgba(121,86,255,.16),
+    inset 0 1px 0 rgba(255,255,255,.10);
+
+  color: rgba(255,255,255,.96);
+
+  transition:
+    transform .14s ease,
+    box-shadow .14s ease,
+    filter .14s ease;
+}
+
+.ik-actionIcon:hover .ik-actionIcon__ic{
+  transform: translateY(-1px);
+  box-shadow:
+    0 24px 66px rgba(121,86,255,.22),
+    inset 0 1px 0 rgba(255,255,255,.12);
+  filter: saturate(1.05);
+}
+
+.ik-actionIcon__ic svg{
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+}
+
+/* “Ghost” (Auditoría) -> más sobrio pero mismo lenguaje */
+.ik-actionIcon.ghost .ik-actionIcon__ic{
+  background: rgba(15,23,42,.06);
+  border: 1px solid var(--stroke);
+  box-shadow: none;
+  color: var(--text);
+}
+.ik-homebarDock .ik-dockSep{
+  width: 10px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.ik-dashboard.theme-iris .ik-actionIcon.ghost .ik-actionIcon__ic{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.92);
+}
+
 .ik-kpi{
   border-radius: 16px;
   border: 1px solid var(--stroke);
@@ -1731,7 +1823,16 @@
 }
 html, body{
   height: 100%;
-  overflow: hidden; /* ✅ evita scrollbar global */
+  width: 100%;
+  margin: 0;              /* ✅ mata el borde blanco */
+  padding: 0;
+  overflow: hidden;       /* ✅ evita scrollbar global */
+}
+
+/* ✅ root también sin márgenes/anchos raros */
+#root{
+  width: 100%;
+  height: 100%;
 }
 .ik-shell.is-collapsed .ik-sidebar{
   transform: translateX(-2px);
@@ -3092,4 +3193,537 @@ html, body{
 }
 .ik-swalHiddenBtn{
   display: inline-flex !important;
+}
+
+/* =========================================================
+   ✅ RESPONSIVE PACK (Topbar + Shell + Sidebar + Home)
+   PÉGALO AL FINAL
+========================================================= */
+
+/* ✅ Mejor altura en móviles (evita bugs con barra del navegador) */
+.ik-main{
+  height: calc(100dvh - 92px);
+}
+
+/* =========================
+   <= 900px (tablet/phone)
+   - Sidebar OFF-CANVAS
+   - Main ocupa todo
+========================= */
+@media (max-width: 900px){
+
+  /* Shell pasa a 1 columna */
+  .ik-shell{
+    grid-template-columns: 1fr !important;
+    padding: 12px 12px 18px;
+    gap: 12px;
+  }
+
+  /* Main full */
+  .ik-main{
+    height: calc(100dvh - 92px);
+    border-radius: var(--radius);
+  }
+
+  /* Sidebar como drawer */
+  .ik-sidebar{
+    position: fixed !important;
+    left: 12px;
+    top: 76px;
+    height: calc(100dvh - 92px);
+    width: 280px;
+    max-width: calc(100vw - 24px);
+    z-index: 60;
+
+    /* por default: visible (cuando NO está colapsado) */
+    transform: translateX(0);
+    box-shadow: 0 40px 160px rgba(0,0,0,.55);
+  }
+
+  /* ✅ Cuando está colapsado => oculto fuera */
+  .ik-shell.is-collapsed .ik-sidebar{
+    transform: translateX(calc(-100% - 18px));
+  }
+
+  /* ✅ En móvil NO uses hover-expand (no hay hover) */
+  .ik-sidebar.ik-sidebar--hover,
+  .ik-sidebar.ik-sidebar--hover:hover{
+    width: 280px !important;
+  }
+
+  /* ✅ Overlay oscuro cuando sidebar está abierto */
+  .ik-shell::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.42);
+    backdrop-filter: blur(6px);
+    z-index: 55;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+
+  /* si NO está colapsado => sidebar abierto => overlay visible */
+  .ik-shell:not(.is-collapsed)::before{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Topbar: compacta */
+  .ik-topbar{
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    padding: 12px 12px;
+  }
+
+  /* Search full-width en su fila */
+  .ik-topbar__mid{
+    grid-column: 1 / -1;
+    justify-content: stretch;
+    order: 3;
+  }
+  .ik-search{
+    width: 100%;
+  }
+
+  /* Quick buttons: reduce espacio */
+  .ik-quick{
+    margin-left: 18px;
+    gap: 8px;
+  }
+
+ 
+
+  /* KPIs: 2 columnas */
+  .ik-kpis{
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2px 12px;
+    gap: 8px;
+  }
+
+  /* Widgets grid: 1 columna */
+  .ik-grid{
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+    gap: 12px;
+  }
+
+  /* ✅ Mata tus posiciones hardcodeadas en móvil */
+  .ik-card--myforms,
+  .ik-card--movements,
+  .ik-card--inbox,
+  .ik-card--performance,
+  .ik-card--calendar,
+  .ik-card--users,
+  .ik-card--docs{
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-height: auto;
+  }
+
+  /* Docs: 2 columnas */
+  .ik-docgrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================
+   <= 560px (phone)
+   - todo 1 columna, botones full
+========================= */
+@media (max-width: 560px){
+
+  .ik-topbar{
+    padding: 10px 10px;
+  }
+
+  /* Quick: opcional más compacto */
+  .ik-quick__btn,
+  .ik-iconbtn,
+  .ik-profileIcon{
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+
+
+
+
+  /* KPIs: 1 columna */
+  .ik-kpis{
+    grid-template-columns: 1fr;
+  }
+
+  /* Docs: 1 columna */
+  .ik-docgrid{
+    grid-template-columns: 1fr;
+  }
+
+  /* Sidebar drawer ocupa más (pero con margen) */
+  .ik-sidebar{
+    left: 10px;
+    top: 72px;
+    height: calc(100dvh - 86px);
+    width: min(320px, calc(100vw - 20px));
+  }
+}
+
+/* =========================
+   ✅ Dock responsive (NO overflow, NO recorte)
+========================= */
+
+@media (max-width: 560px){
+  .ik-actionDock{
+    gap: 10px;
+    padding: 10px 2px 10px;
+  }
+  .ik-actionIcon{
+    height: 48px;
+  }
+  .ik-actionIcon__ic{
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+  }
+  .ik-actionIcon__ic svg{
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 560px){
+  .ik-actionDock{
+    gap: 6px;
+    padding: 8px 2px 10px;
+  }
+  .ik-actionIcon{
+    height: 48px;
+  }
+  .ik-actionIcon__ic{
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+  }
+  .ik-actionIcon__ic svg{
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* extra: teléfonos muy chicos (320px) */
+@media (max-width: 360px){
+  .ik-actionDock{ gap: 6px; }
+  .ik-actionIcon{ height: 46px; }
+  .ik-actionIcon__ic{
+    width: 36px;
+    height: 36px;
+    border-radius: 13px;
+  }
+  .ik-actionIcon__ic svg{
+    width: 18px;
+    height: 18px;
+  }
+}
+/* =========================
+   ✅ Dashboard Widgets Canvas (Editable)
+========================= */
+
+/* ===========================
+   FIX: el GRID debe medir lo mismo que los KPIs
+   (que llegue al borde derecho)
+=========================== */
+.ik-home {
+  width: 100%;
+  max-width: none;
+}
+
+.ik-kpis,
+.ik-gridCanvas {
+  width: 100%;
+  max-width: none;
+}
+
+.ik-kpis,
+.ik-gridCanvas {
+  padding-right: 0;
+}
+
+.ik-gridCanvas .react-grid-layout {
+  width: 100% !important;
+}
+
+
+.ik-homebar{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 6px 10px;
+}
+
+.ik-homebar__right{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ik-editBtns{
+  display: inline-flex;
+  gap: 10px;
+}
+
+/* botón principal pro */
+.ik-editBtn{
+  appearance: none;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, var(--paper), var(--paper2));
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 14px;
+  font-weight: 950;
+  letter-spacing: .2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow2);
+  color: var(--text);
+}
+
+.ik-editBtn:hover{
+  transform: translateY(-1px);
+}
+
+.ik-editBtn.ghost{
+  background: rgba(255,255,255,.05);
+}
+
+/* ✅ Un solo riel horizontal para KPIs + Grid */
+:root{
+  --home-pad-x: 6px; /* ajusta 6/8/10 si quieres más aire */
+}
+
+/* KPI strip */
+.ik-kpis{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0 var(--home-pad-x) 14px;
+}
+
+.ik-gridCanvas{
+  position: relative;
+  padding: 0 0 16px; /* ✅ el aire ahora lo hace containerPadding del grid */
+}
+
+.ik-gridCanvas.is-edit{
+  /* halo sutil cuando editas */
+  box-shadow: 0 0 0 4px rgba(121,86,255,.10);
+  border-radius: var(--radius);
+}
+
+/* item del grid */
+.ik-card--gridItem{
+  height: 100%;
+}
+
+/* botón de quitar widget (solo edit) */
+.ik-widgetRemove{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(10,12,20,.70);
+  color: rgba(255,255,255,.92);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.ik-dashboard.theme-light .ik-widgetRemove{
+  background: rgba(15,23,42,.06);
+  color: rgba(15,23,42,.92);
+  border-color: rgba(15,23,42,.14);
+}
+.ik-widgetRemove:hover{
+  transform: translateY(-1px);
+}
+
+/* React-grid: handles más discretos */
+.react-resizable-handle{
+  opacity: .65;
+  filter: saturate(0);
+}
+.ik-gridCanvas.is-edit .react-resizable-handle{
+  opacity: .9;
+  filter: none;
+}
+
+/* Empty dashboard pro */
+.ik-emptyDash{
+  border-radius: var(--radius);
+  border: 1px dashed rgba(121,86,255,.35);
+  background: rgba(255,255,255,.04);
+  padding: 18px;
+  margin: 0 6px 14px;
+  text-align: center;
+}
+.ik-emptyDash__title{
+  font-weight: 950;
+  font-size: 16px;
+}
+.ik-emptyDash__sub{
+  margin-top: 6px;
+  color: var(--muted);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+/* Drawer widgets */
+.ik-dashDrawer{
+  position: fixed;
+  top: 92px;
+  right: 16px;
+  height: calc(100vh - 110px);
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  border-radius: 18px;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, var(--paper), var(--paper2));
+  box-shadow: 0 24px 90px rgba(0,0,0,.18);
+  overflow: hidden;
+  z-index: 80;
+
+  opacity: 0;
+  transform: translateX(12px);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.ik-dashDrawer.open{
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.ik-dashboard.theme-iris .ik-dashDrawer{
+  background: rgba(10, 12, 20, .88);
+  backdrop-filter: blur(18px);
+  border-color: rgba(255,255,255,.12);
+  box-shadow: 0 34px 140px rgba(0,0,0,.55);
+}
+
+.ik-dashDrawer__head{
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.ik-dashboard.theme-iris .ik-dashDrawer__head{
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.ik-dashDrawer__title{
+  font-weight: 950;
+  letter-spacing: .2px;
+}
+
+.ik-dashDrawer__actions{
+  display: inline-flex;
+  gap: 8px;
+}
+
+.ik-dashDrawer__body{
+  padding: 12px;
+  height: calc(100% - 58px);
+  overflow: auto;
+}
+
+.ik-dashDrawer__hint{
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1.35;
+  margin-bottom: 12px;
+}
+
+.ik-dashList{
+  display: grid;
+  gap: 10px;
+}
+
+.ik-dashItem{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.04);
+  padding: 12px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+}
+.ik-dashboard.theme-light .ik-dashItem{
+  border-color: rgba(15,23,42,.12);
+  background: rgba(15,23,42,.04);
+}
+.ik-dashItem:hover{
+  transform: translateY(-1px);
+}
+
+.ik-dashItem__t{
+  font-weight: 950;
+}
+.ik-dashItem__s{
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.ik-dashDrawer__footer{
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+/* móvil: drawer full */
+@media (max-width: 900px){
+  .ik-dashDrawer{
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+}
+
+
+.theme-light .ik-widgetRemove,
+[data-theme="light"] .ik-widgetRemove {
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(0,0,0,0.10);
+}
+
+/* ✅ Scroll solo dentro del main (no en body) */
+.ik-main{
+  overflow: auto;
+  scrollbar-gutter: stable both-edges;
+}
+/* ✅ durante drag/resize, NO transitions (reduce “temblores”) */
+.react-grid-item.react-draggable-dragging,
+.react-grid-item.resizing{
+  transition: none !important;
+}
+/* ✅ el contenido debe poder crecer (flex fix clásico) */
+.ik-main,
+.ik-content,
+.main-content{
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
 }

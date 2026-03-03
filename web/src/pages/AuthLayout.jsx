@@ -114,7 +114,7 @@ export default function AuthLayout({
             <path d="M8 16v-5M12 16V8M16 16v-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
         )}
-      </span>
+      </span> 
       <span>{text}</span>
     </div>
   );
