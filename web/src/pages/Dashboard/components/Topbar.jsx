@@ -22,13 +22,13 @@ import {
 import Swal from "sweetalert2";
 
 import ikarisLogo from "../../../assets/ikaris-tech.png";
+import ikarisLogoMobile from "../../../assets/IKARIST.png";
 import { supabase } from "../../../supabaseClient";
 import AvatarPickerModal from "../../../ui/AvatarPickerModal";
 
-/* ✅ nuevo CSS (no inflar dashboard.css) */
+
 import "../../../styles/topbar.avatar.css";
-
-
+import "../../../styles/topbar.responsive.css"; 
 
 
 
@@ -51,8 +51,6 @@ export default function Topbar({ ctx, theme, onToggleTheme }) {
     const [q, setQ] = useState("");
     const [open, setOpen] = useState(false);
 
-// ✅ Multi-tenant real: NUNCA guardes avatar/phone en localStorage global.
-// Todo debe venir de DB por (auth_user_id + company_id).
 const email = ctx?.me?.user?.email || "";
 const company = ctx?.company?.name || "IKARIS";
 const role = String(ctx?.role || "POLITES").toUpperCase();
@@ -455,14 +453,30 @@ return (
   <header className="ik-topbar">
 
         <div className="ik-topbar__left">
+          {/* ✅ Mobile: botón hamburguesa (abre/cierra sidebar) */}
+          <button
+            className="ik-mnavBtn"
+            type="button"
+            title="Menú"
+            onClick={() => {
+              // 1) Si tienes handler desde el layout:
+              if (typeof ctx?.toggleSidebar === "function") return ctx.toggleSidebar();
 
+              // 2) Fallback: dispara evento (por si lo conectas luego)
+              window.dispatchEvent(new CustomEvent("ik_toggle_sidebar"));
+            }}
+          >
+            <FiMenu />
+          </button>
 
-  <div className="ik-brand">
-    <img className="ik-brand__img" src={ikarisLogo} alt="IKARIS Tech" />
+          <div className="ik-brand" title="IKARIS Tech">
+            {/* ✅ Desktop */}
+            <img className="ik-brand__img ik-brand__img--desktop" src={ikarisLogo} alt="IKARIS Tech" />
+            {/* ✅ Mobile */}
+            <img className="ik-brand__img ik-brand__img--mobile" src={ikarisLogoMobile} alt="IKARIS Tech" />
+          </div>
 
-  </div>
-
-
+          {/* ✅ Desktop: quick actions (en mobile se ocultan por CSS) */}
           <div className="ik-quick">
             <button className="ik-quick__btn" onClick={() => quickNav("/dashboard")} title="Dashboard">
               <FiGrid />
@@ -470,18 +484,19 @@ return (
             <button className="ik-quick__btn" onClick={() => quickNav("/forms")} title="Forms">
               <FiFileText />
             </button>
-<button className="ik-quick__btn" onClick={() => quickNav("/admin")} title="Admin Panel">
-  <FiUsers />
-</button>
-<button className="ik-quick__btn" onClick={() => quickNav("/admin")} title="Admin Panel">
-  <FiSettings />
-</button>
 
+            <button className="ik-quick__btn" onClick={() => quickNav("/admin")} title="Admin Panel">
+              <FiUsers />
+            </button>
+
+            <button className="ik-quick__btn" onClick={() => quickNav("/admin")} title="Settings">
+              <FiSettings />
+            </button>
           </div>
         </div>
-
         <div className="ik-topbar__mid">
-          <form className="ik-search" onSubmit={onSearchSubmit}>
+          {/* ✅ Desktop search normal (en mobile se oculta por CSS) */}
+          <form className="ik-search ik-search--desktop" onSubmit={onSearchSubmit}>
             <FiSearch className="ik-search__icon" />
             <input
               className="ik-search__input"
@@ -498,6 +513,8 @@ return (
         </div>
 
 <div className="ik-topbar__right">
+
+
   {/* 🔔 Notificaciones */}
   <button className="ik-iconbtn" title="Notificaciones">
     <FiBell />
