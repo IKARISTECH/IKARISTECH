@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ikaris Tech</title>
+
+    <!--
+      Script síncrono: se ejecuta ANTES de que React monte.
+      Evita el flash blanco al cargar en modo oscuro
+      y garantiza que la clase 'dark' esté en el HTML
+      desde el primer pixel pintado.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('ikaris-theme');
+          var parsed = stored ? JSON.parse(stored) : null;
+          var isDark = parsed && parsed.state && parsed.state.isDark === true;
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

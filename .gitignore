@@ -1,9 +1,0 @@
-# env
-.env
-**/.env
-.env.*
-**/.env.*
-
-# deps
-node_modules/
-**/node_modules/

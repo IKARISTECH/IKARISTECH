@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar delgada */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+.dark ::-webkit-scrollbar-thumb { background: #374151; }
+
+/* ── React Grid Layout ─────────────────────────────────────────────────── */
+.react-grid-layout {
+  position: relative;
+}
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top, width, height;
+}
+.react-grid-item.cssTransforms {
+  transition-property: transform, width, height;
+}
+.react-grid-item.resizing {
+  transition: none;
+  z-index: 3;
+}
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 4;
+  cursor: grabbing;
+  opacity: 0.85;
+}
+.react-grid-item.dropping {
+  visibility: hidden;
+}
+.react-grid-item .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 4px;
+  right: 4px;
+  cursor: se-resize;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.react-grid-item:hover .react-resizable-handle {
+  opacity: 1;
+}
+.react-grid-item .react-resizable-handle::after {
+  content: '';
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #7c3aed;
+  border-bottom: 2px solid #7c3aed;
+  border-radius: 1px;
+}
+.react-grid-placeholder {
+  background: #7c3aed;
+  opacity: 0.08;
+  border-radius: 16px;
+  border: 2px dashed #7c3aed;
+  transition-duration: 100ms;
+  z-index: 2;
+}
+
+/* Forzar blur del backdrop sobre navbar */
+.backdrop-over-nav {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9998 !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Select nativo con dark mode */
+select option {
+  background-color: #ffffff;
+  color: #111827;
+}
+
+.dark select option {
+  background-color: #18181f;
+  color: #f3f4f6;
+}
+
+.dark select {
+  color-scheme: dark;
+}
